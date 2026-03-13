@@ -261,18 +261,6 @@ W_scratch = reactor_scratch(train_texts, wte, wpe, lm_h, tok)
 
 ---
 
-## Files
-
-| File | Description |
-|------|-------------|
-| `reactor_framework.py` | Full REACTOR library (1084 lines). Crystal Engine, weight extraction, teacher training, generation |
-| `reactor_final.py` | REACTOR teacher training standalone |
-| `reactor_scratch_lite.py` | REACTOR-SCRATCH — raw text training, 0 gradients |
-| `manish_principle_demo.py` | 5-section demo: NumPy engine, V16 transfer, weight extraction, 78/22, REACTOR |
-| `manish_principle_benchmark.py` | 48-law benchmark v2.0 |
-| `law_47_exact.py` | Cross-token bilinear law proof |
-| `MANISH_PRINCIPLE_COMPLETE_REPORT.txt` | Full 48-law technical report |
-
 ---
 
 ## Evidence Standards (Non-Negotiable)
