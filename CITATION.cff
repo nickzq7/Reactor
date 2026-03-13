@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+title: "REACTOR: Training a Transformer in O(N) Time With Zero Gradient Steps — The Manish Principle"
+message: "If you use this work, please cite it using the metadata below."
+authors:
+  - family-names: Parihar
+    given-names: Manish Kumar
+    orcid: "https://orcid.org/0009-0002-1900-8945"
+version: 1.0.0
+date-released: 2026-03-12
+doi: 10.5281/zenodo.18992518
+url: "https://doi.org/10.5281/zenodo.18992518"
+repository-code: "https://github.com/nickzq7"
+keywords:
+  - transformer
+  - REACTOR
+  - Manish Principle
+  - analytical training
+  - zero gradient
+  - natural space
+  - lstsq
+license: MIT
