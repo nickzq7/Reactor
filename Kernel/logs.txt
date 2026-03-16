@@ -1,0 +1,877 @@
+w_hash_benchmark.py"
+
+════════════════════════════════════════════════════════════════════════
+  W-HASH GEOMETRY BENCHMARK — TinyStories-1M
+════════════════════════════════════════════════════════════════════════
+
+  PIPELINE:
+    Phase 1 → Load model, extract W-HASH fingerprint
+    Phase 2 → Build numpy kernel from model weights, re-hash, compare
+    Phase 3 → Generate 200 tokens: PyTorch model vs numpy kernel
+    Phase 4 → Inject kernel weights back into PyTorch model, re-hash
+    Phase 5 → Generate 200 tokens: original model vs kernel-to-model
+
+
+════════════════════════════════════════════════════════════════════════
+  LOAD TinyStories-1M
+════════════════════════════════════════════════════════════════════════
+Loading weights: 100%|████████████████████████████████████████| 108/108 [00:00<00:00, 1845.93it/s, Materializing param=transformer.wte.weight]
+GPTNeoForCausalLM LOAD REPORT from: roneneldan/TinyStories-1M
+Key                                                               | Status     |  |
+------------------------------------------------------------------+------------+--+-
+transformer.h.{0, 1, 2, 3, 4, 5, 6, 7}.attn.attention.masked_bias | UNEXPECTED |  |
+transformer.h.{0, 1, 2, 3, 4, 5, 6, 7}.attn.attention.bias        | UNEXPECTED |  |
+
+Notes:
+- UNEXPECTED    :can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  ✓  D=64  NH=16  NL=8  V=50257  F=256
+
+════════════════════════════════════════════════════════════════════════
+  PHASE 1 — W-HASH: ORIGINAL MODEL
+════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────
+  Computing geometry hash for all matrices...
+────────────────────────────────────────────────────────────────────────
+
+  Key                Shape           rank  eff_r     cond       frob   cumE@10  Spectrum
+  ─────────────────────────────────────────────────────────────────────────────────────
+  WTE                [50257, 64]       64   53.8     28.4   177.2111    0.6369  [PEAKED]
+  WPE                [2048, 64]        64   55.3      8.9     4.7533    0.6227  [PEAKED]
+  L0_Wq              [64, 64]          64   43.8    511.0     3.1341    0.6888  [PEAKED]
+  L0_Wk              [64, 64]          64   44.8    222.6     3.3295    0.6646  [PEAKED]
+  L0_Wv              [64, 64]          63   48.2   3506.6     0.9858    0.5443  [MODERATE]
+  L0_Wo              [64, 64]          63   45.5    467.3     1.1894    0.5969  [MODERATE]
+  L0_W1              [256, 64]         64   60.0      6.4     3.5521    0.3390  [MIXED]
+  L0_W2              [64, 256]         64   60.4      4.4     2.9750    0.3204  [MIXED]
+  L0_W1W2            [64, 64]          64   50.5    190.6     1.1665    0.4827  [MODERATE]
+  L1_Wq              [64, 64]          64   35.8   1443.2     3.8825    0.7864  [PEAKED]
+  L1_Wk              [64, 64]          64   38.7   1090.7     3.2561    0.7810  [PEAKED]
+  L1_Wv              [64, 64]          63   45.8    528.2     1.3220    0.6380  [PEAKED]
+  L1_Wo              [64, 64]          63   44.2   5356.2     1.3089    0.6586  [PEAKED]
+  L1_W1              [256, 64]         64   59.4      5.7     3.1249    0.3629  [MIXED]
+  L1_W2              [64, 256]         64   60.0      5.5     2.4393    0.3460  [MIXED]
+  L1_W1W2            [64, 64]          63   47.3    390.5     0.8371    0.5427  [MODERATE]
+  L2_Wq              [64, 64]          64   33.5   2862.6     9.3208    0.8724  [PEAKED]
+  L2_Wk              [64, 64]          64   37.1   1427.9     3.7079    0.8460  [PEAKED]
+  L2_Wv              [64, 64]          64   47.8    131.9     1.6217    0.5519  [MODERATE]
+  L2_Wo              [64, 64]          64   47.4    173.0     1.7576    0.5360  [MODERATE]
+  L2_W1              [256, 64]         64   60.1      4.7     3.0979    0.3560  [MIXED]
+  L2_W2              [64, 256]         64   61.4      3.8     2.2871    0.3080  [MIXED]
+  L2_W1W2            [64, 64]          63   52.3    328.6     0.5412    0.4796  [MODERATE]
+  L3_Wq              [64, 64]          64   36.4    964.1     7.9976    0.8264  [PEAKED]
+  L3_Wk              [64, 64]          64   38.1    836.6     4.0098    0.8169  [PEAKED]
+  L3_Wv              [64, 64]          63   48.6    556.7     1.2006    0.5326  [MODERATE]
+  L3_Wo              [64, 64]          64   46.7    226.1     1.2342    0.5964  [MODERATE]
+  L3_W1              [256, 64]         64   60.2      7.8     3.2640    0.3375  [MIXED]
+  L3_W2              [64, 256]         64   61.3      3.6     2.2568    0.3120  [MIXED]
+  L3_W1W2            [64, 64]          63   53.2    268.0     0.3822    0.4473  [MODERATE]
+  L4_Wq              [64, 64]          64   40.4   1621.0     6.2745    0.7682  [PEAKED]
+  L4_Wk              [64, 64]          64   39.0    772.9     4.0058    0.7824  [PEAKED]
+  L4_Wv              [64, 64]          64   48.2    252.1     0.9581    0.5406  [MODERATE]
+  L4_Wo              [64, 64]          63   45.7    346.9     0.9482    0.5762  [MODERATE]
+  L4_W1              [256, 64]         64   60.2      7.9     3.1587    0.3403  [MIXED]
+  L4_W2              [64, 256]         64   61.1      4.0     2.1246    0.3146  [MIXED]
+  L4_W1W2            [64, 64]          63   52.8     82.8     0.2907    0.4552  [MODERATE]
+  L5_Wq              [64, 64]          64   40.3    795.0     6.4502    0.7567  [PEAKED]
+  L5_Wk              [64, 64]          64   40.7    522.1     4.2519    0.7530  [PEAKED]
+  L5_Wv              [64, 64]          63   47.7    426.2     0.9729    0.5243  [MODERATE]
+  L5_Wo              [64, 64]          63   46.9    302.6     1.0267    0.5385  [MODERATE]
+  L5_W1              [256, 64]         64   59.5     18.2     3.0787    0.3484  [MIXED]
+  L5_W2              [64, 256]         64   61.1      6.4     2.0499    0.3083  [MIXED]
+  L5_W1W2            [64, 64]          62   51.2    208.9     0.2656    0.4720  [MODERATE]
+  L6_Wq              [64, 64]          64   37.2   2477.7     9.1130    0.8237  [PEAKED]
+  L6_Wk              [64, 64]          64   38.8   1561.5     4.1669    0.7909  [PEAKED]
+  L6_Wv              [64, 64]          64   48.3     88.4     1.0087    0.5437  [MODERATE]
+  L6_Wo              [64, 64]          63   44.8   1219.0     1.0323    0.5960  [MODERATE]
+  L6_W1              [256, 64]         64   59.4     13.8     3.1766    0.3455  [MIXED]
+  L6_W2              [64, 256]         64   60.8      3.9     2.1820    0.3186  [MIXED]
+  L6_W1W2            [64, 64]          63   51.3  12442.6     0.2466    0.4608  [MODERATE]
+  L7_Wq              [64, 64]          63   39.5  13270.1     6.9481    0.7772  [PEAKED]
+  L7_Wk              [64, 64]          64   39.7   1660.4     4.4037    0.7468  [PEAKED]
+  L7_Wv              [64, 64]          64   46.7    190.6     1.0085    0.5365  [MODERATE]
+  L7_Wo              [64, 64]          63   44.7   2107.8     1.1913    0.5801  [MODERATE]
+  L7_W1              [256, 64]         64   58.1      7.0     3.6880    0.4003  [MODERATE]
+  L7_W2              [64, 256]         64   59.9      5.6     2.6671    0.3453  [MIXED]
+  L7_W1W2            [64, 64]          62   49.2   1093.2     0.3026    0.5317  [MODERATE]
+
+  Spectrum summary: {'PEAKED': 20, 'MODERATE': 23, 'MIXED': 15}
+  → PEAKED/MODERATE = compressible  |  FLAT = do not compress
+
+════════════════════════════════════════════════════════════════════════
+  PHASE 2 — MODEL → KERNEL: HASH COMPARISON
+════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────
+  The kernel uses the exact same weights as the model.
+────────────────────────────────────────────────────────────────────────
+  →  Both should have IDENTICAL W-HASH fingerprints.
+
+  Matrix                      Match  sv_diff   frob_diff
+  ────────────────────────────────────────────────────────────
+  L0_W1              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L0_W1W2            ✓  IDENTICAL    0.00e+00   0.00e+00
+  L0_W2              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L0_Wk              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L0_Wo              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L0_Wq              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L0_Wv              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L1_W1              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L1_W1W2            ✓  IDENTICAL    0.00e+00   0.00e+00
+  L1_W2              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L1_Wk              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L1_Wo              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L1_Wq              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L1_Wv              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L2_W1              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L2_W1W2            ✓  IDENTICAL    0.00e+00   0.00e+00
+  L2_W2              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L2_Wk              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L2_Wo              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L2_Wq              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L2_Wv              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L3_W1              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L3_W1W2            ✓  IDENTICAL    0.00e+00   0.00e+00
+  L3_W2              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L3_Wk              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L3_Wo              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L3_Wq              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L3_Wv              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L4_W1              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L4_W1W2            ✓  IDENTICAL    0.00e+00   0.00e+00
+  L4_W2              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L4_Wk              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L4_Wo              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L4_Wq              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L4_Wv              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L5_W1              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L5_W1W2            ✓  IDENTICAL    0.00e+00   0.00e+00
+  L5_W2              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L5_Wk              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L5_Wo              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L5_Wq              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L5_Wv              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L6_W1              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L6_W1W2            ✓  IDENTICAL    0.00e+00   0.00e+00
+  L6_W2              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L6_Wk              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L6_Wo              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L6_Wq              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L6_Wv              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L7_W1              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L7_W1W2            ✓  IDENTICAL    0.00e+00   0.00e+00
+  L7_W2              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L7_Wk              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L7_Wo              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L7_Wq              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L7_Wv              ✓  IDENTICAL    0.00e+00   0.00e+00
+  WPE                ✓  IDENTICAL    0.00e+00   0.00e+00
+  WTE                ✓  IDENTICAL    0.00e+00   0.00e+00
+
+  Overall: ✓ ALL HASHES MATCH — kernel = model
+
+════════════════════════════════════════════════════════════════════════
+  PHASE 3 — GENERATION: ORIGINAL MODEL vs NUMPY KERNEL
+════════════════════════════════════════════════════════════════════════
+
+  ════════════════════════════════════════════════════════════════════
+  PROMPT 1/3: "Once upon a time, in a small village, there lived a boy name"
+  ════════════════════════════════════════════════════════════════════
+  Generating 200 tokens from PyTorch model... done (5.9s)
+  Generating 200 tokens from numpy kernel... done (8.5s)
+
+  ┌── PyTorch model ─────────────────────────────────────────────────┐
+  │  Once upon a time, in a small village, there lived a boy named     │
+  │  Jack. Jack was very happy and loved to play with his friends.     │
+  │  One day, Jack's mom asked him to help her. Jack was very excited  │
+  │  and asked if he could help. Jack said, "Yes, please!" So, Jack    │
+  │  and his friends went to the store to buy some food. Jack was so   │
+  │  excited to help his friends. When they got to the store, Jack     │
+  │  saw a big, red apple. He was so excited to eat it. Jack said,     │
+  │  "I'm so happy to eat it!" Jack said, "Thank you, Mommy! I'm so    │
+  │  glad I had a good friend." Jack smiled and said, "I'm glad        │
+  │  you're so helpful. I'm glad I could help you." <|endoftext|>      │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ┌── Numpy kernel ──────────────────────────────────────────────────┐
+  │  Once upon a time, in a small village, there lived a boy named     │
+  │  Jack. Jack was very happy and loved to play with his friends.     │
+  │  One day, Jack's mom asked him to help her. Jack was very excited  │
+  │  and asked if he could help. Jack said, "Yes, please!" So, Jack    │
+  │  and his friends went to the store to buy some food. Jack was so   │
+  │  excited to help his friends. When they got to the store, Jack     │
+  │  saw a big, red apple. He was so excited to eat it. Jack said,     │
+  │  "I'm so happy to eat it!" Jack said, "Thank you, Mommy! I'm so    │
+  │  glad I had a good friend." Jack smiled and said, "I'm glad        │
+  │  you're so helpful. I'm glad I could help you." <|endoftext|>      │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ✓  PERFECT = 100.0% token match  (PyTorch vs Kernel)
+
+  Step   PyTorch      Kernel         OK  Word
+  ────────────────────────────────────────────────────
+  0      3619         3619            ✓  ' Jack'
+  1      373          373             ✓  ' was'
+  2      845          845             ✓  ' very'
+  3      3772         3772            ✓  ' happy'
+  4      290          290             ✓  ' and'
+  5      6151         6151            ✓  ' loved'
+  6      284          284             ✓  ' to'
+  7      711          711             ✓  ' play'
+  8      351          351             ✓  ' with'
+  9      465          465             ✓  ' his'
+  10     2460         2460            ✓  ' friends'
+  11     13           13              ✓  '.'
+  12     1881         1881            ✓  ' One'
+  13     1110         1110            ✓  ' day'
+  14     11           11              ✓  ','
+  15     3619         3619            ✓  ' Jack'
+  16     338          338             ✓  "'s"
+  17     1995         1995            ✓  ' mom'
+  18     1965         1965            ✓  ' asked'
+  19     683          683             ✓  ' him'
+  ... tokens 20–199: 180/180 matching
+
+  ════════════════════════════════════════════════════════════════════
+  PROMPT 2/3: "The little cat sat by the window and looked at the rain outs"
+  ════════════════════════════════════════════════════════════════════
+  Generating 200 tokens from PyTorch model... done (5.6s)
+  Generating 200 tokens from numpy kernel... done (8.4s)
+
+  ┌── PyTorch model ─────────────────────────────────────────────────┐
+  │  The little cat sat by the window and looked at the rain outside.  │
+  │  She saw a big, shiny rock and wanted to play with it. She ran to  │
+  │  the tree and picked it up. She was so happy and ran to the tree.  │
+  │  She played with the rock and had so much fun. But then, the sun   │
+  │  started to set. The sun was shining and the sun was shining. The  │
+  │  little girl was sad. She wanted to play with the sun, but it was  │
+  │  too late. The sun was getting dark and the sun was shining. The   │
+  │  little girl was sad. She had no fun playing with the sun. She     │
+  │  had to go home and play with her friends. She had a lot of fun    │
+  │  playing with her friends. <|endoftext|> Once upon a time, there   │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ┌── Numpy kernel ──────────────────────────────────────────────────┐
+  │  The little cat sat by the window and looked at the rain outside.  │
+  │  She saw a big, shiny rock and wanted to play with it. She ran to  │
+  │  the tree and picked it up. She was so happy and ran to the tree.  │
+  │  She played with the rock and had so much fun. But then, the sun   │
+  │  started to set. The sun was shining and the sun was shining. The  │
+  │  little girl was sad. She wanted to play with the sun, but it was  │
+  │  too late. The sun was getting dark and the sun was shining. The   │
+  │  little girl was sad. She had no fun playing with the sun. She     │
+  │  had to go home and play with her friends. She had a lot of fun    │
+  │  playing with her friends. <|endoftext|> Once upon a time, there   │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ✓  PERFECT = 100.0% token match  (PyTorch vs Kernel)
+
+  Step   PyTorch      Kernel         OK  Word
+  ────────────────────────────────────────────────────
+  0      1375         1375            ✓  ' She'
+  1      2497         2497            ✓  ' saw'
+  2      257          257             ✓  ' a'
+  3      1263         1263            ✓  ' big'
+  4      11           11              ✓  ','
+  5      22441        22441           ✓  ' shiny'
+  6      3881         3881            ✓  ' rock'
+  7      290          290             ✓  ' and'
+  8      2227         2227            ✓  ' wanted'
+  9      284          284             ✓  ' to'
+  10     711          711             ✓  ' play'
+  11     351          351             ✓  ' with'
+  12     340          340             ✓  ' it'
+  13     13           13              ✓  '.'
+  14     1375         1375            ✓  ' She'
+  15     4966         4966            ✓  ' ran'
+  16     284          284             ✓  ' to'
+  17     262          262             ✓  ' the'
+  18     5509         5509            ✓  ' tree'
+  19     290          290             ✓  ' and'
+  ... tokens 20–199: 180/180 matching
+
+  ════════════════════════════════════════════════════════════════════
+  PROMPT 3/3: "One day, a dragon flew over the mountains and landed in the "
+  ════════════════════════════════════════════════════════════════════
+  Generating 200 tokens from PyTorch model... done (6.2s)
+  Generating 200 tokens from numpy kernel... done (8.4s)
+
+  ┌── PyTorch model ─────────────────────────────────────────────────┐
+  │  One day, a dragon flew over the mountains and landed in the       │
+  │  valley. The dragon was very happy and wanted to fly. The dragon   │
+  │  said, "Hello, dragon!" The dragon said, "I am a dragon. I am a    │
+  │  dragon." The dragon said, "Hello, dragon. I am a dragon. I am a   │
+  │  dragon. I am a dragon." The dragon said, "Hello, dragon. I am a   │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ┌── Numpy kernel ──────────────────────────────────────────────────┐
+  │  One day, a dragon flew over the mountains and landed in the       │
+  │  valley. The dragon was very happy and wanted to fly. The dragon   │
+  │  said, "Hello, dragon!" The dragon said, "I am a dragon. I am a    │
+  │  dragon." The dragon said, "Hello, dragon. I am a dragon. I am a   │
+  │  dragon. I am a dragon." The dragon said, "Hello, dragon. I am a   │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ✓  PERFECT = 100.0% token match  (PyTorch vs Kernel)
+
+  Step   PyTorch      Kernel         OK  Word
+  ────────────────────────────────────────────────────
+  0      383          383             ✓  ' The'
+  1      10441        10441           ✓  ' dragon'
+  2      373          373             ✓  ' was'
+  3      845          845             ✓  ' very'
+  4      3772         3772            ✓  ' happy'
+  5      290          290             ✓  ' and'
+  6      2227         2227            ✓  ' wanted'
+  7      284          284             ✓  ' to'
+  8      6129         6129            ✓  ' fly'
+  9      13           13              ✓  '.'
+  10     198          198             ✓  '\n'
+  11     198          198             ✓  '\n'
+  12     464          464             ✓  'The'
+  13     10441        10441           ✓  ' dragon'
+  14     531          531             ✓  ' said'
+  15     11           11              ✓  ','
+  16     366          366             ✓  ' "'
+  17     15496        15496           ✓  'Hello'
+  18     11           11              ✓  ','
+  19     10441        10441           ✓  ' dragon'
+  ... tokens 20–199: 180/180 matching
+
+  ════════════════════════════════════════════════════════════════════
+  PHASE 3 TOTAL: 600/600 = 100.0%
+  ════════════════════════════════════════════════════════════════════
+
+════════════════════════════════════════════════════════════════════════
+  PHASE 4 — KERNEL → MODEL: INJECT & RE-HASH
+════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────
+  Injecting kernel weights back into a fresh PyTorch model...
+────────────────────────────────────────────────────────────────────────
+  ✓  Reconstruction done.
+
+────────────────────────────────────────────────────────────────────────
+  Extracting weights from reconstructed model...
+────────────────────────────────────────────────────────────────────────
+  ✓  Extraction done.
+
+────────────────────────────────────────────────────────────────────────
+  Computing W-HASH of reconstructed model...
+────────────────────────────────────────────────────────────────────────
+
+  Comparing: ORIGINAL MODEL hash vs KERNEL-TO-MODEL hash
+
+  Matrix                      Match  sv_diff   frob_diff
+  ────────────────────────────────────────────────────────────
+  L0_W1              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L0_W1W2            ✓  IDENTICAL    0.00e+00   0.00e+00
+  L0_W2              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L0_Wk              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L0_Wo              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L0_Wq              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L0_Wv              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L1_W1              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L1_W1W2            ✓  IDENTICAL    0.00e+00   0.00e+00
+  L1_W2              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L1_Wk              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L1_Wo              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L1_Wq              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L1_Wv              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L2_W1              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L2_W1W2            ✓  IDENTICAL    0.00e+00   0.00e+00
+  L2_W2              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L2_Wk              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L2_Wo              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L2_Wq              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L2_Wv              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L3_W1              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L3_W1W2            ✓  IDENTICAL    0.00e+00   0.00e+00
+  L3_W2              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L3_Wk              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L3_Wo              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L3_Wq              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L3_Wv              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L4_W1              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L4_W1W2            ✓  IDENTICAL    0.00e+00   0.00e+00
+  L4_W2              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L4_Wk              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L4_Wo              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L4_Wq              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L4_Wv              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L5_W1              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L5_W1W2            ✓  IDENTICAL    0.00e+00   0.00e+00
+  L5_W2              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L5_Wk              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L5_Wo              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L5_Wq              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L5_Wv              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L6_W1              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L6_W1W2            ✓  IDENTICAL    0.00e+00   0.00e+00
+  L6_W2              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L6_Wk              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L6_Wo              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L6_Wq              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L6_Wv              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L7_W1              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L7_W1W2            ✓  IDENTICAL    0.00e+00   0.00e+00
+  L7_W2              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L7_Wk              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L7_Wo              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L7_Wq              ✓  IDENTICAL    0.00e+00   0.00e+00
+  L7_Wv              ✓  IDENTICAL    0.00e+00   0.00e+00
+  WPE                ✓  IDENTICAL    0.00e+00   0.00e+00
+  WTE                ✓  IDENTICAL    0.00e+00   0.00e+00
+
+  Overall: ✓ ALL HASHES MATCH — round-trip exact
+  This proves: model → kernel → model preserves ALL geometric structure.
+  The W-HASH is a complete invariant of the weight matrices.
+
+════════════════════════════════════════════════════════════════════════
+  PHASE 5 — GENERATION: ORIGINAL MODEL vs KERNEL-TO-MODEL
+════════════════════════════════════════════════════════════════════════
+  This tests whether the kernel→model reconstruction generates
+  identical tokens to the original model.
+
+
+  ════════════════════════════════════════════════════════════════════
+  PROMPT 1/3: "Once upon a time, in a small village, there lived a boy name"
+  ════════════════════════════════════════════════════════════════════
+  Generating from ORIGINAL model... done (5.6s)
+  Generating from KERNEL-TO-MODEL... done (5.5s)
+
+  ┌── Original model ────────────────────────────────────────────────┐
+  │  Once upon a time, in a small village, there lived a boy named     │
+  │  Jack. Jack was very happy and loved to play with his friends.     │
+  │  One day, Jack's mom asked him to help her. Jack was very excited  │
+  │  and asked if he could help. Jack said, "Yes, please!" So, Jack    │
+  │  and his friends went to the store to buy some food. Jack was so   │
+  │  excited to help his friends. When they got to the store, Jack     │
+  │  saw a big, red apple. He was so excited to eat it. Jack said,     │
+  │  "I'm so happy to eat it!" Jack said, "Thank you, Mommy! I'm so    │
+  │  glad I had a good friend." Jack smiled and said, "I'm glad        │
+  │  you're so helpful. I'm glad I could help you." <|endoftext|>      │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ┌── Kernel-to-model ───────────────────────────────────────────────┐
+  │  Once upon a time, in a small village, there lived a boy named     │
+  │  Jack. Jack was very happy and loved to play with his friends.     │
+  │  One day, Jack's mom asked him to help her. Jack was very excited  │
+  │  and asked if he could help. Jack said, "Yes, please!" So, Jack    │
+  │  and his friends went to the store to buy some food. Jack was so   │
+  │  excited to help his friends. When they got to the store, Jack     │
+  │  saw a big, red apple. He was so excited to eat it. Jack said,     │
+  │  "I'm so happy to eat it!" Jack said, "Thank you, Mommy! I'm so    │
+  │  glad I had a good friend." Jack smiled and said, "I'm glad        │
+  │  you're so helpful. I'm glad I could help you." <|endoftext|>      │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ✓  PERFECT = 100.0% token match  (Original vs Reconstructed)
+
+  Step   Original     Reconstructed   OK  Word
+  ────────────────────────────────────────────────────
+  0      3619         3619            ✓  ' Jack'
+  1      373          373             ✓  ' was'
+  2      845          845             ✓  ' very'
+  3      3772         3772            ✓  ' happy'
+  4      290          290             ✓  ' and'
+  5      6151         6151            ✓  ' loved'
+  6      284          284             ✓  ' to'
+  7      711          711             ✓  ' play'
+  8      351          351             ✓  ' with'
+  9      465          465             ✓  ' his'
+  10     2460         2460            ✓  ' friends'
+  11     13           13              ✓  '.'
+  12     1881         1881            ✓  ' One'
+  13     1110         1110            ✓  ' day'
+  14     11           11              ✓  ','
+  15     3619         3619            ✓  ' Jack'
+  16     338          338             ✓  "'s"
+  17     1995         1995            ✓  ' mom'
+  18     1965         1965            ✓  ' asked'
+  19     683          683             ✓  ' him'
+  ... tokens 20–199: 180/180 matching
+
+  ════════════════════════════════════════════════════════════════════
+  PROMPT 2/3: "The little cat sat by the window and looked at the rain outs"
+  ════════════════════════════════════════════════════════════════════
+  Generating from ORIGINAL model... done (5.0s)
+  Generating from KERNEL-TO-MODEL... done (4.9s)
+
+  ┌── Original model ────────────────────────────────────────────────┐
+  │  The little cat sat by the window and looked at the rain outside.  │
+  │  She saw a big, shiny rock and wanted to play with it. She ran to  │
+  │  the tree and picked it up. She was so happy and ran to the tree.  │
+  │  She played with the rock and had so much fun. But then, the sun   │
+  │  started to set. The sun was shining and the sun was shining. The  │
+  │  little girl was sad. She wanted to play with the sun, but it was  │
+  │  too late. The sun was getting dark and the sun was shining. The   │
+  │  little girl was sad. She had no fun playing with the sun. She     │
+  │  had to go home and play with her friends. She had a lot of fun    │
+  │  playing with her friends. <|endoftext|> Once upon a time, there   │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ┌── Kernel-to-model ───────────────────────────────────────────────┐
+  │  The little cat sat by the window and looked at the rain outside.  │
+  │  She saw a big, shiny rock and wanted to play with it. She ran to  │
+  │  the tree and picked it up. She was so happy and ran to the tree.  │
+  │  She played with the rock and had so much fun. But then, the sun   │
+  │  started to set. The sun was shining and the sun was shining. The  │
+  │  little girl was sad. She wanted to play with the sun, but it was  │
+  │  too late. The sun was getting dark and the sun was shining. The   │
+  │  little girl was sad. She had no fun playing with the sun. She     │
+  │  had to go home and play with her friends. She had a lot of fun    │
+  │  playing with her friends. <|endoftext|> Once upon a time, there   │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ✓  PERFECT = 100.0% token match  (Original vs Reconstructed)
+
+  Step   Original     Reconstructed   OK  Word
+  ────────────────────────────────────────────────────
+  0      1375         1375            ✓  ' She'
+  1      2497         2497            ✓  ' saw'
+  2      257          257             ✓  ' a'
+  3      1263         1263            ✓  ' big'
+  4      11           11              ✓  ','
+  5      22441        22441           ✓  ' shiny'
+  6      3881         3881            ✓  ' rock'
+  7      290          290             ✓  ' and'
+  8      2227         2227            ✓  ' wanted'
+  9      284          284             ✓  ' to'
+  10     711          711             ✓  ' play'
+  11     351          351             ✓  ' with'
+  12     340          340             ✓  ' it'
+  13     13           13              ✓  '.'
+  14     1375         1375            ✓  ' She'
+  15     4966         4966            ✓  ' ran'
+  16     284          284             ✓  ' to'
+  17     262          262             ✓  ' the'
+  18     5509         5509            ✓  ' tree'
+  19     290          290             ✓  ' and'
+  ... tokens 20–199: 180/180 matching
+
+  ════════════════════════════════════════════════════════════════════
+  PROMPT 3/3: "One day, a dragon flew over the mountains and landed in the "
+  ════════════════════════════════════════════════════════════════════
+  Generating from ORIGINAL model... done (4.9s)
+  Generating from KERNEL-TO-MODEL... done (4.7s)
+
+  ┌── Original model ────────────────────────────────────────────────┐
+  │  One day, a dragon flew over the mountains and landed in the       │
+  │  valley. The dragon was very happy and wanted to fly. The dragon   │
+  │  said, "Hello, dragon!" The dragon said, "I am a dragon. I am a    │
+  │  dragon." The dragon said, "Hello, dragon. I am a dragon. I am a   │
+  │  dragon. I am a dragon." The dragon said, "Hello, dragon. I am a   │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ┌── Kernel-to-model ───────────────────────────────────────────────┐
+  │  One day, a dragon flew over the mountains and landed in the       │
+  │  valley. The dragon was very happy and wanted to fly. The dragon   │
+  │  said, "Hello, dragon!" The dragon said, "I am a dragon. I am a    │
+  │  dragon." The dragon said, "Hello, dragon. I am a dragon. I am a   │
+  │  dragon. I am a dragon." The dragon said, "Hello, dragon. I am a   │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a       │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ✓  PERFECT = 100.0% token match  (Original vs Reconstructed)
+
+  Step   Original     Reconstructed   OK  Word
+  ────────────────────────────────────────────────────
+  0      383          383             ✓  ' The'
+  1      10441        10441           ✓  ' dragon'
+  2      373          373             ✓  ' was'
+  3      845          845             ✓  ' very'
+  4      3772         3772            ✓  ' happy'
+  5      290          290             ✓  ' and'
+  6      2227         2227            ✓  ' wanted'
+  7      284          284             ✓  ' to'
+  8      6129         6129            ✓  ' fly'
+  9      13           13              ✓  '.'
+  10     198          198             ✓  '\n'
+  11     198          198             ✓  '\n'
+  12     464          464             ✓  'The'
+  13     10441        10441           ✓  ' dragon'
+  14     531          531             ✓  ' said'
+  15     11           11              ✓  ','
+  16     366          366             ✓  ' "'
+  17     15496        15496           ✓  'Hello'
+  18     11           11              ✓  ','
+  19     10441        10441           ✓  ' dragon'
+  ... tokens 20–199: 180/180 matching
+
+  ════════════════════════════════════════════════════════════════════
+  PHASE 5 TOTAL: 600/600 = 100.0%
+  ════════════════════════════════════════════════════════════════════
+
+════════════════════════════════════════════════════════════════════════
+  FINAL SUMMARY
+════════════════════════════════════════════════════════════════════════
+
+  W-HASH GEOMETRY INVARIANCE
+  ─────────────────────────────────────────────────────────────
+  Phase 2  Model hash == Kernel hash      : ✓ IDENTICAL
+  Phase 4  Orig hash  == Reconstructed    : ✓ IDENTICAL
+
+  GENERATION MATCH
+  ─────────────────────────────────────────────────────────────
+  Phase 3  PyTorch model vs numpy kernel  : 600/600 = 100.0%
+  Phase 5  Original vs kernel-to-model    : 600/600 = 100.0%
+
+  SPECTRUM ANALYSIS (compressibility map)
+  ─────────────────────────────────────────────────────────────
+  L0_W1              cumE@10=0.339 ██████               [MIXED]
+  L0_W2              cumE@10=0.320 ██████               [MIXED]
+  L0_Wk              cumE@10=0.665 █████████████        [PEAKED]
+  L0_Wo              cumE@10=0.597 ███████████          [MODERATE]
+  L0_Wq              cumE@10=0.689 █████████████        [PEAKED]
+  L0_Wv              cumE@10=0.544 ██████████           [MODERATE]
+  L1_W1              cumE@10=0.363 ███████              [MIXED]
+  L1_W2              cumE@10=0.346 ██████               [MIXED]
+  L1_Wk              cumE@10=0.781 ███████████████      [PEAKED]
+  L1_Wo              cumE@10=0.659 █████████████        [PEAKED]
+  L1_Wq              cumE@10=0.786 ███████████████      [PEAKED]
+  L1_Wv              cumE@10=0.638 ████████████         [PEAKED]
+  L2_W1              cumE@10=0.356 ███████              [MIXED]
+  L2_W2              cumE@10=0.308 ██████               [MIXED]
+  L2_Wk              cumE@10=0.846 ████████████████     [PEAKED]
+  L2_Wo              cumE@10=0.536 ██████████           [MODERATE]
+  L2_Wq              cumE@10=0.872 █████████████████    [PEAKED]
+  L2_Wv              cumE@10=0.552 ███████████          [MODERATE]
+  L3_W1              cumE@10=0.338 ██████               [MIXED]
+  L3_W2              cumE@10=0.312 ██████               [MIXED]
+  L3_Wk              cumE@10=0.817 ████████████████     [PEAKED]
+  L3_Wo              cumE@10=0.596 ███████████          [MODERATE]
+  L3_Wq              cumE@10=0.826 ████████████████     [PEAKED]
+  L3_Wv              cumE@10=0.533 ██████████           [MODERATE]
+  L4_W1              cumE@10=0.340 ██████               [MIXED]
+  L4_W2              cumE@10=0.315 ██████               [MIXED]
+  L4_Wk              cumE@10=0.782 ███████████████      [PEAKED]
+  L4_Wo              cumE@10=0.576 ███████████          [MODERATE]
+  L4_Wq              cumE@10=0.768 ███████████████      [PEAKED]
+  L4_Wv              cumE@10=0.541 ██████████           [MODERATE]
+  L5_W1              cumE@10=0.348 ██████               [MIXED]
+  L5_W2              cumE@10=0.308 ██████               [MIXED]
+  L5_Wk              cumE@10=0.753 ███████████████      [PEAKED]
+  L5_Wo              cumE@10=0.538 ██████████           [MODERATE]
+  L5_Wq              cumE@10=0.757 ███████████████      [PEAKED]
+  L5_Wv              cumE@10=0.524 ██████████           [MODERATE]
+  L6_W1              cumE@10=0.345 ██████               [MIXED]
+  L6_W2              cumE@10=0.319 ██████               [MIXED]
+  L6_Wk              cumE@10=0.791 ███████████████      [PEAKED]
+  L6_Wo              cumE@10=0.596 ███████████          [MODERATE]
+  L6_Wq              cumE@10=0.824 ████████████████     [PEAKED]
+  L6_Wv              cumE@10=0.544 ██████████           [MODERATE]
+  L7_W1              cumE@10=0.400 ████████             [MODERATE]
+  L7_W2              cumE@10=0.345 ██████               [MIXED]
+  L7_Wk              cumE@10=0.747 ██████████████       [PEAKED]
+  L7_Wo              cumE@10=0.580 ███████████          [MODERATE]
+  L7_Wq              cumE@10=0.777 ███████████████      [PEAKED]
+  L7_Wv              cumE@10=0.536 ██████████           [MODERATE]
+  WPE                cumE@10=0.623 ████████████         [PEAKED]
+  WTE                cumE@10=0.637 ████████████         [PEAKED]
+
+  LAW VERIFICATION
+  ─────────────────────────────────────────────────────────────
+  Law 35: numpy == pytorch output      : ✓ 100.0%
+  Law 36: match holds over 200 tokens  : ✓ 100.0%
+  W-HASH: geometry survives round-trip : ✓
+
+  WHAT THE W-HASH TELLS YOU:
+  ─────────────────────────────────────────────────────────────
+  eff_rank  = how many dimensions the model actually uses
+  cond      = how numerically stable the transformation is
+  cumE@10   = JPEG quality: > 0.60 compressible, < 0.20 do not touch
+  spectrum  = PEAKED (low-rank) → FLAT (full-rank)
+
+  TinyStories-1M D=64 is too small → most matrices are FLAT
+  This means: already at minimum rank, no SVD compression possible.
+  For Pythia-160m (D=768) or larger: PEAKED spectra appear.
+  That is where compression becomes viable.
+
+════════════════════════════════════════════════════════════════════════
+
+geometry_hash.py"
+
+══════════════════════════════════════════════════════════════════
+  GEOMETRY HASH — Compact Fingerprint of TinyStories-1M
+══════════════════════════════════════════════════════════════════
+
+  Loading roneneldan/TinyStories-1M...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights: 100%|████████████████████████████████████████| 108/108 [00:00<00:00, 2757.04it/s, Materializing param=transformer.wte.weight]
+GPTNeoForCausalLM LOAD REPORT from: roneneldan/TinyStories-1M
+Key                                                               | Status     |  |
+------------------------------------------------------------------+------------+--+-
+transformer.h.{0, 1, 2, 3, 4, 5, 6, 7}.attn.attention.masked_bias | UNEXPECTED |  |
+transformer.h.{0, 1, 2, 3, 4, 5, 6, 7}.attn.attention.bias        | UNEXPECTED |  |
+
+Notes:
+- UNEXPECTED    :can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+  D=64  NH=16  NL=8  F=256
+
+  Computing geometry hash...
+
+  GEOMETRY HASH — roneneldan/TinyStories-1M
+  ──────────────────────────────────────────────────────────────
+  Format: [S=spectrum][RR=eff_rank hex][EE=cumE@10 hex][C=log10_cond hex]
+  S: P=PEAKED  M=MODERATE  X=MIXED  F=FLAT
+  ──────────────────────────────────────────────────────────────
+
+  Matrix             Code  Spectrum    eff_r  cumE@10  log10c
+  ──────────────────────────────────────────────────────────────
+  WTE              P36A21  PEAKED         54     0.635       1
+  WPE              P379F0  PEAKED         55     0.624       0
+  ──────────────────────────────────────────────────────────────
+  L0.Wq            P2CB02  PEAKED         44     0.690       2
+  L0.Wk            P2DA92  PEAKED         45     0.663       2
+  L0.Wv            M308B3  MODERATE       48     0.545       3
+  L0.Wo            M2D982  MODERATE       45     0.596       2
+  L0.W1            X3C560  MIXED          60     0.337       0
+  L0.W2            X3C520  MIXED          60     0.322       0
+  L0.FFN           M337B2  MODERATE       51     0.482       2
+  ······························································
+  L1.Wq            P24C93  PEAKED         36     0.788       3
+  L1.Wk            P27C73  PEAKED         39     0.780       3
+  L1.Wv            P2EA32  PEAKED         46     0.639       2
+  L1.Wo            P2CA83  PEAKED         44     0.659       3
+  L1.W1            X3B5D0  MIXED          59     0.365       0
+  L1.W2            X3C580  MIXED          60     0.345       0
+  L1.FFN           M2F8A2  MODERATE       47     0.541       2
+  ······························································
+  L2.Wq            P22DE3  PEAKED         34     0.871       3
+  L2.Wk            P25D83  PEAKED         37     0.847       3
+  L2.Wv            M308D2  MODERATE       48     0.553       2
+  L2.Wo            M2F892  MODERATE       47     0.537       2
+  L2.W1            X3C5B0  MIXED          60     0.357       0
+  L2.W2            X3D4F0  MIXED          61     0.310       0
+  L2.FFN           M347A2  MODERATE       52     0.478       2
+  ······························································
+  L3.Wq            P24D32  PEAKED         36     0.827       2
+  L3.Wk            P26D02  PEAKED         38     0.816       2
+  L3.Wv            M31882  MODERATE       49     0.533       2
+  L3.Wo            M2F982  MODERATE       47     0.596       2
+  L3.W1            X3C560  MIXED          60     0.337       0
+  L3.W2            X3D500  MIXED          61     0.314       0
+  L3.FFN           M35722  MODERATE       53     0.447       2
+  ······························································
+  L4.Wq            P28C43  PEAKED         40     0.769       3
+  L4.Wk            P27C82  PEAKED         39     0.784       2
+  L4.Wv            M308A2  MODERATE       48     0.541       2
+  L4.Wo            M2E932  MODERATE       46     0.576       2
+  L4.W1            X3C570  MIXED          60     0.341       0
+  L4.W2            X3D500  MIXED          61     0.314       0
+  L4.FFN           M35741  MODERATE       53     0.455       1
+  ······························································
+  L5.Wq            P28C12  PEAKED         40     0.757       2
+  L5.Wk            P29C02  PEAKED         41     0.753       2
+  L5.Wv            M30862  MODERATE       48     0.525       2
+  L5.Wo            M2F892  MODERATE       47     0.537       2
+  L5.W1            X3C591  MIXED          60     0.349       1
+  L5.W2            X3D4F0  MIXED          61     0.310       0
+  L5.FFN           M33782  MODERATE       51     0.471       2
+  ······························································
+  L6.Wq            P25D23  PEAKED         37     0.824       3
+  L6.Wk            P27CA3  PEAKED         39     0.792       3
+  L6.Wv            M308B1  MODERATE       48     0.545       1
+  L6.Wo            M2D983  MODERATE       45     0.596       3
+  L6.W1            X3B581  MIXED          59     0.345       1
+  L6.W2            X3D510  MIXED          61     0.318       0
+  L6.FFN           M33754  MODERATE       51     0.459       4
+  ······························································
+  L7.Wq            P28C64  PEAKED         40     0.776       4
+  L7.Wk            P28BE3  PEAKED         40     0.745       3
+  L7.Wv            M2F892  MODERATE       47     0.537       2
+  L7.Wo            M2D943  MODERATE       45     0.580       3
+  L7.W1            M3A660  MODERATE       58     0.400       0
+  L7.W2            X3C580  MIXED          60     0.345       0
+  L7.FFN           M31883  MODERATE       49     0.533       3
+  ──────────────────────────────────────────────────────────────
+
+  ONE-LINE FINGERPRINT:
+  P36A21.P379F0|P2CB02.P2DA92.M308B3.M2D982.X3C560.X3C520.M337B2|P
+  24C93.P27C73.P2EA32.P2CA83.X3B5D0.X3C580.M2F8A2|P22DE3.P25D83.M3
+  08D2.M2F892.X3C5B0.X3D4F0.M347A2|P24D32.P26D02.M31882.M2F982.X3C560.X3D500.M35722|P28C43.P27C82.M308A2.M2E932.X3C570.X3D500.M35741|P28C12.P29C02.M30862.M2F892.X3C591.X3D4F0.M33782|P25D23.P27CA3.M308B1.M2D983.X3B581.X3D510.M33754|P28C64.P28BE3.M2F892.M2D943.M3A660.X3C580.M31883       
+
+  LAYER SUMMARY (Wq|Wk|Wv|Wo|W1|W2):
+  L0: P2CB02  P2DA92  M308B3  M2D982  X3C560  X3C520
+  L1: P24C93  P27C73  P2EA32  P2CA83  X3B5D0  X3C580
+  L2: P22DE3  P25D83  M308D2  M2F892  X3C5B0  X3D4F0
+  L3: P24D32  P26D02  M31882  M2F982  X3C560  X3D500
+  L4: P28C43  P27C82  M308A2  M2E932  X3C570  X3D500
+  L5: P28C12  P29C02  M30862  M2F892  X3C591  X3D4F0
+  L6: P25D23  P27CA3  M308B1  M2D983  X3B581  X3D510
+  L7: P28C64  P28BE3  M2F892  M2D943  M3A660  X3C580
+
+══════════════════════════════════════════════════════════════════
+  VERIFY: same model hashed twice → identical codes
+══════════════════════════════════════════════════════════════════
+
+  Same model, same hash: 58/58 match
+  ✓ IDENTICAL — geometry hash is deterministic
+
+══════════════════════════════════════════════════════════════════
+  VERIFY: perturbed weights → different hash
+══════════════════════════════════════════════════════════════════
+
+  Perturbed (noise on L0.Wq): 1 matrices changed
+  Changed matrices:
+    L0.Wq           orig=P2CB02  pert=M33752  (PEAKED→MODERATE  cumE: 0.690→0.459)
+
+══════════════════════════════════════════════════════════════════
+  HOW TO READ THE GEOMETRY HASH
+══════════════════════════════════════════════════════════════════
+
+  Code format:  [S][RR][EE][C]   total 6 chars per matrix
+
+  S  — Spectrum class (1 char)
+       P = PEAKED   cumE@10 > 0.60  → low-rank, compressible
+       M = MODERATE cumE@10 > 0.40  → light compression possible
+       X = MIXED    cumE@10 > 0.20  → compress with caution
+       F = FLAT     cumE@10 ≤ 0.20  → full-rank, do not compress
+
+  RR — Effective rank in hex (2 chars, 00–FF)
+       How many dimensions the matrix ACTUALLY uses.
+       RR=10 → eff_rank=16, mostly 16 dims matter
+       RR=3C → eff_rank=60, spread across 60 dims
+
+  EE — Cumulative energy @ top-10 SVs (2 chars, 00–FF)
+       EE=FF → 100% energy in top-10 → maximum peaked
+       EE=80 → 50% energy in top-10  → moderate
+       EE=33 → 20% energy in top-10  → flat
+
+  C  — log10(condition number) in hex (1 char, 0–F)
+       C=0 → cond≈1      (perfectly stable)
+       C=3 → cond≈1000   (moderately ill-conditioned)
+       C=F → cond≥1e15   (nearly singular)
+
+  EXAMPLE:  P2B6C3
+    P  → PEAKED spectrum  (concentrated energy)
+    2B → eff_rank = 43    (43 of 64 dims used)
+    6C → cumE@10 = 0.424  (42% energy in top-10)
+    3  → log10(cond) = 3  → cond ≈ 1000
+
+  ONE-LINE FINGERPRINT structure:
+    WTE.WPE | L0codes | L1codes | ... | L7codes
+    Each Lx = Wq.Wk.Wv.Wo.W1.W2.FFN  (7 codes per layer)
+
+══════════════════════════════════════════════════════════════════
