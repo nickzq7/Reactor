@@ -1,0 +1,1993 @@
+\The W\pythia_crystal_engine (1).py"
+════════════════════════════════════════════════════════════════════════════════
+                PYTHIA CRYSTAL ENGINE — Pure NumPy Transformer Benchmark        
+════════════════════════════════════════════════════════════════════════════════
+  The Manish Principle: natural_features(X) @ W = Y   R²=1.000000
+  Model   : EleutherAI/pythia-160m
+  Family  : GPT-NeoX (LayerNorm + GeLU + Partial-RoPE + Parallel-Residual)
+  Gates   : R2_GATE=0.9999  ERR_GATE=0.0001
+  Device  : CUDA
+  ✓ Flash SDP disabled — standard attention path active
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 1: LOAD WEIGHTS
+────────────────────────────────────────────────────────────────────────────────
+
+  Loading EleutherAI/pythia-160m ...
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights: 100%|████████████| 148/148 [00:00<00:00, 1478.64it/s, Materializing param=gpt_neox.layers.11.post_attention_layernorm.weight]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  ✓  D=768  NH=12  NL=12  FFN=3072  HD=64
+     rope_base=10000.0  rotary_pct=0.25  rotary_ndims=16
+     layer_norm_eps=1e-05  parallel_residual=True
+
+  Architecture summary:
+    LayerNorm (with bias, with mean sub)  eps=1e-05
+    Partial RoPE  base=10000.0  rotary_ndims=16/64
+      → only first 16 dims rotated; last 48 pass through
+    GeLU (tanh approx): crystal point = gelu_out → ffn_out
+    Parallel residual: x = x + att(ln1(x)) + ffn(ln2(x))  [one step]
+    Attention scale: 1/√64 = 0.1250
+    No GQA — standard multi-head (NH=12)
+  Loading CPU float64 reference...
+Loading weights: 100%|████████████| 148/148 [00:00<00:00, 1314.44it/s, Materializing param=gpt_neox.layers.11.post_attention_layernorm.weight]
+  ✓ CPU float64 reference ready
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 2: SAMPLE GENERATION (greedy)
+────────────────────────────────────────────────────────────────────────────────
+
+  Prompt : def fibonacci(n):
+  Output : def fibonacci(n):
+    """
+    Returns the number of Fibonacci numbers.
+    """
+    return n
+
+
+def fibonacci_n(
+
+  Prompt : def binary_search(arr, target):
+  Output : def binary_search(arr, target):
+    """
+    Search a binary search tree with a given target.
+    """
+    if target is not None:
+        return target
+
+  Prompt : class Stack:
+    def __init__(self):
+  Output : class Stack:
+    def __init__(self):
+        self.name = "Stack"
+        self.type = "Stack"
+        self.name_type = "Stack"
+
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 3: R² BOUNDARY VERIFICATION
+────────────────────────────────────────────────────────────────────────────────
+  Gates: R²≥0.9999 AND max_err≤0.0001
+
+  Layer   Boundary                       R²     max_err  Status
+  ────────────────────────────────────────────────────────────────
+  ── Layer 0 ──
+  ✓  L0    Law1   LayerNorm1     R²=1.00000000  err=1.78e-15  [EXACT]
+  ✓  L0    Law4   Q              R²=1.00000000  err=8.88e-15  [EXACT]
+  ✓  L0    Law4   K              R²=1.00000000  err=3.55e-15  [EXACT]
+  ✓  L0    Law4   V              R²=1.00000000  err=1.78e-15  [EXACT]
+  ✓  L0    Law8   att_out        R²=1.00000000  err=6.65e-08  [EXACT]
+  ✓  L0    Law1   LayerNorm2     R²=1.00000000  err=3.55e-15  [EXACT]
+  ✓  L0    Law6   pre_act        R²=1.00000000  err=2.66e-15  [EXACT]
+  ✓  L0    Law6   gelu_out       R²=1.00000000  err=1.33e-15  [EXACT]
+  ✓  L0    Law6   ffn_out        R²=1.00000000  err=1.33e-15  [EXACT]
+  ✓  L0    Law7   layer_out      R²=1.00000000  err=6.65e-08  [EXACT]
+  ── Layer 1 ──
+  ✓  L1    Law1   LayerNorm1     R²=1.00000000  err=2.47e-07  [EXACT]
+  ✓  L1    Law4   Q              R²=1.00000000  err=3.21e-07  [EXACT]
+  ✓  L1    Law4   K              R²=1.00000000  err=2.48e-07  [EXACT]
+  ✓  L1    Law4   V              R²=1.00000000  err=9.30e-08  [EXACT]
+  ✓  L1    Law8   att_out        R²=1.00000000  err=5.03e-08  [EXACT]
+  ✓  L1    Law1   LayerNorm2     R²=1.00000000  err=1.71e-07  [EXACT]
+  ✓  L1    Law6   pre_act        R²=1.00000000  err=2.80e-07  [EXACT]
+  ✓  L1    Law6   gelu_out       R²=1.00000000  err=1.89e-07  [EXACT]
+  ✓  L1    Law6   ffn_out        R²=1.00000000  err=2.13e-07  [EXACT]
+  ✓  L1    Law7   layer_out      R²=1.00000000  err=2.89e-07  [EXACT]
+  ── Layer 2 ──
+  ✓  L2    Law1   LayerNorm1     R²=1.00000000  err=2.80e-07  [EXACT]
+  ✓  L2    Law4   Q              R²=1.00000000  err=2.17e-07  [EXACT]
+  ✓  L2    Law4   K              R²=1.00000000  err=1.82e-07  [EXACT]
+  ✓  L2    Law4   V              R²=1.00000000  err=1.19e-07  [EXACT]
+  ✓  L2    Law8   att_out        R²=1.00000000  err=4.86e-08  [EXACT]
+  ✓  L2    Law1   LayerNorm2     R²=1.00000000  err=3.79e-07  [EXACT]
+  ✓  L2    Law6   pre_act        R²=1.00000000  err=1.36e-06  [EXACT]
+  ✓  L2    Law6   gelu_out       R²=1.00000000  err=3.39e-07  [EXACT]
+  ✓  L2    Law6   ffn_out        R²=1.00000000  err=1.33e-07  [EXACT]
+  ✓  L2    Law7   layer_out      R²=1.00000000  err=1.49e-07  [EXACT]
+  ── Layer 3 ──
+  ✓  L3    Law1   LayerNorm1     R²=1.00000000  err=2.52e-07  [EXACT]
+  ✓  L3    Law4   Q              R²=1.00000000  err=3.80e-06  [EXACT]
+  ✓  L3    Law4   K              R²=1.00000000  err=1.64e-07  [EXACT]
+  ✓  L3    Law4   V              R²=1.00000000  err=1.41e-07  [EXACT]
+  ✓  L3    Law8   att_out        R²=1.00000000  err=4.36e-08  [EXACT]
+  ✓  L3    Law1   LayerNorm2     R²=1.00000000  err=2.36e-07  [EXACT]
+  ✓  L3    Law6   pre_act        R²=1.00000000  err=4.13e-07  [EXACT]
+  ✓  L3    Law6   gelu_out       R²=1.00000000  err=1.06e-07  [EXACT]
+  ✓  L3    Law6   ffn_out        R²=1.00000000  err=3.81e-08  [EXACT]
+  ✓  L3    Law7   layer_out      R²=1.00000000  err=1.16e-07  [EXACT]
+  ── Layer 4 ──
+  ✓  L4    Law1   LayerNorm1     R²=1.00000000  err=1.85e-07  [EXACT]
+  ✓  L4    Law4   Q              R²=1.00000000  err=1.33e-06  [EXACT]
+  ✓  L4    Law4   K              R²=1.00000000  err=2.31e-07  [EXACT]
+  ✓  L4    Law4   V              R²=1.00000000  err=1.24e-07  [EXACT]
+  ✓  L4    Law8   att_out        R²=1.00000000  err=2.79e-08  [EXACT]
+  ✓  L4    Law1   LayerNorm2     R²=1.00000000  err=1.24e-07  [EXACT]
+  ✓  L4    Law6   pre_act        R²=1.00000000  err=1.67e-07  [EXACT]
+  ✓  L4    Law6   gelu_out       R²=1.00000000  err=9.75e-08  [EXACT]
+  ✓  L4    Law6   ffn_out        R²=1.00000000  err=6.59e-08  [EXACT]
+  ✓  L4    Law7   layer_out      R²=1.00000000  err=2.04e-07  [EXACT]
+  ── Layer 5 ──
+  ✓  L5    Law1   LayerNorm1     R²=1.00000000  err=1.90e-07  [EXACT]
+  ✓  L5    Law4   Q              R²=1.00000000  err=1.46e-06  [EXACT]
+  ✓  L5    Law4   K              R²=1.00000000  err=1.49e-07  [EXACT]
+  ✓  L5    Law4   V              R²=1.00000000  err=1.23e-07  [EXACT]
+  ✓  L5    Law8   att_out        R²=1.00000000  err=7.91e-08  [EXACT]
+  ✓  L5    Law1   LayerNorm2     R²=1.00000000  err=1.30e-07  [EXACT]
+  ✓  L5    Law6   pre_act        R²=1.00000000  err=1.77e-07  [EXACT]
+  ✓  L5    Law6   gelu_out       R²=1.00000000  err=8.61e-08  [EXACT]
+  ✓  L5    Law6   ffn_out        R²=1.00000000  err=5.50e-08  [EXACT]
+  ✓  L5    Law7   layer_out      R²=1.00000000  err=2.56e-07  [EXACT]
+  ── Layer 6 ──
+  ✓  L6    Law1   LayerNorm1     R²=1.00000000  err=2.36e-07  [EXACT]
+  ✓  L6    Law4   Q              R²=1.00000000  err=5.87e-06  [EXACT]
+  ✓  L6    Law4   K              R²=1.00000000  err=2.12e-07  [EXACT]
+  ✓  L6    Law4   V              R²=1.00000000  err=1.32e-07  [EXACT]
+  ✓  L6    Law8   att_out        R²=1.00000000  err=3.48e-08  [EXACT]
+  ✓  L6    Law1   LayerNorm2     R²=1.00000000  err=1.53e-07  [EXACT]
+  ✓  L6    Law6   pre_act        R²=1.00000000  err=2.29e-07  [EXACT]
+  ✓  L6    Law6   gelu_out       R²=1.00000000  err=1.14e-07  [EXACT]
+  ✓  L6    Law6   ffn_out        R²=1.00000000  err=5.15e-08  [EXACT]
+  ✓  L6    Law7   layer_out      R²=1.00000000  err=2.03e-07  [EXACT]
+  ── Layer 7 ──
+  ✓  L7    Law1   LayerNorm1     R²=1.00000000  err=6.67e-07  [EXACT]
+  ✓  L7    Law4   Q              R²=1.00000000  err=7.69e-06  [EXACT]
+  ✓  L7    Law4   K              R²=1.00000000  err=5.37e-07  [EXACT]
+  ✓  L7    Law4   V              R²=1.00000000  err=1.27e-07  [EXACT]
+  ✓  L7    Law8   att_out        R²=1.00000000  err=5.53e-08  [EXACT]
+  ✓  L7    Law1   LayerNorm2     R²=1.00000000  err=1.33e-07  [EXACT]
+  ✓  L7    Law6   pre_act        R²=1.00000000  err=1.71e-07  [EXACT]
+  ✓  L7    Law6   gelu_out       R²=1.00000000  err=1.25e-07  [EXACT]
+  ✓  L7    Law6   ffn_out        R²=1.00000000  err=1.11e-07  [EXACT]
+  ✓  L7    Law7   layer_out      R²=1.00000000  err=1.65e-07  [EXACT]
+  ── Layer 8 ──
+  ✓  L8    Law1   LayerNorm1     R²=1.00000000  err=6.44e-07  [EXACT]
+  ✓  L8    Law4   Q              R²=1.00000000  err=9.67e-06  [EXACT]
+  ✓  L8    Law4   K              R²=1.00000000  err=3.25e-07  [EXACT]
+  ✓  L8    Law4   V              R²=1.00000000  err=1.49e-07  [EXACT]
+  ✓  L8    Law8   att_out        R²=1.00000000  err=3.90e-08  [EXACT]
+  ✓  L8    Law1   LayerNorm2     R²=1.00000000  err=1.40e-07  [EXACT]
+  ✓  L8    Law6   pre_act        R²=1.00000000  err=2.70e-07  [EXACT]
+  ✓  L8    Law6   gelu_out       R²=1.00000000  err=1.20e-07  [EXACT]
+  ✓  L8    Law6   ffn_out        R²=1.00000000  err=2.32e-07  [EXACT]
+  ✓  L8    Law7   layer_out      R²=1.00000000  err=3.51e-07  [EXACT]
+  ── Layer 9 ──
+  ✓  L9    Law1   LayerNorm1     R²=1.00000000  err=1.76e-06  [EXACT]
+  ✓  L9    Law4   Q              R²=1.00000000  err=1.53e-05  [EXACT]
+  ✓  L9    Law4   K              R²=1.00000000  err=4.80e-07  [EXACT]
+  ✓  L9    Law4   V              R²=1.00000000  err=1.31e-07  [EXACT]
+  ✓  L9    Law8   att_out        R²=1.00000000  err=6.89e-08  [EXACT]
+  ✓  L9    Law1   LayerNorm2     R²=1.00000000  err=1.57e-07  [EXACT]
+  ✓  L9    Law6   pre_act        R²=1.00000000  err=2.58e-07  [EXACT]
+  ✓  L9    Law6   gelu_out       R²=1.00000000  err=2.58e-07  [EXACT]
+  ✓  L9    Law6   ffn_out        R²=1.00000000  err=2.11e-07  [EXACT]
+  ✓  L9    Law7   layer_out      R²=1.00000000  err=2.15e-07  [EXACT]
+  ── Layer 10 ──
+  ✓  L10   Law1   LayerNorm1     R²=1.00000000  err=3.01e-06  [EXACT]
+  ✓  L10   Law4   Q              R²=1.00000000  err=2.01e-05  [EXACT]
+  ✓  L10   Law4   K              R²=1.00000000  err=4.56e-07  [EXACT]
+  ✓  L10   Law4   V              R²=1.00000000  err=7.66e-08  [EXACT]
+  ✓  L10   Law8   att_out        R²=1.00000000  err=4.50e-08  [EXACT]
+  ✓  L10   Law1   LayerNorm2     R²=1.00000000  err=2.83e-07  [EXACT]
+  ✓  L10   Law6   pre_act        R²=1.00000000  err=3.53e-07  [EXACT]
+  ✓  L10   Law6   gelu_out       R²=1.00000000  err=3.57e-07  [EXACT]
+  ✓  L10   Law6   ffn_out        R²=1.00000000  err=1.65e-07  [EXACT]
+  ✓  L10   Law7   layer_out      R²=1.00000000  err=2.63e-07  [EXACT]
+  ── Layer 11 ──
+  ✓  L11   Law1   LayerNorm1     R²=1.00000000  err=5.31e-06  [EXACT]
+  ✓  L11   Law4   Q              R²=1.00000000  err=2.43e-05  [EXACT]
+  ✓  L11   Law4   K              R²=1.00000000  err=5.07e-07  [EXACT]
+  ✓  L11   Law4   V              R²=1.00000000  err=9.48e-08  [EXACT]
+  ✓  L11   Law8   att_out        R²=1.00000000  err=4.19e-08  [EXACT]
+  ✓  L11   Law1   LayerNorm2     R²=1.00000000  err=3.41e-07  [EXACT]
+  ✓  L11   Law6   pre_act        R²=1.00000000  err=4.81e-07  [EXACT]
+  ✓  L11   Law6   gelu_out       R²=1.00000000  err=4.81e-07  [EXACT]
+  ✓  L11   Law6   ffn_out        R²=1.00000000  err=2.44e-07  [EXACT]
+  ✓  L11   Law7   layer_out      R²=1.00000000  err=1.68e-07  [EXACT]
+
+  Boundaries EXACT: 120/120
+  ALL LAWS VERIFIED ✓
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 4: LOGIT CORRELATION (single fwd, full vocab)
+────────────────────────────────────────────────────────────────────────────────
+  Using CPU float64 reference — corr=1.000000 expected
+
+  ✓  corr=1.00000000  'def fibonacci(n):'
+  ✓  corr=1.00000000  'def binary_search(arr, target):'
+  ✓  corr=1.00000000  'class Stack:
+    def __init__(self):'
+  ✓  corr=1.00000000  'def merge_sort(arr):'
+  ✓  corr=1.00000000  'def is_palindrome(s):'
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 5: SPEED BENCHMARK — 20 runs
+────────────────────────────────────────────────────────────────────────────────
+  Crystal Engine (numpy)  :    97.61 ms/fwd
+  PyTorch (CUDA)            :    29.92 ms/fwd
+  Speedup: 0.31x PyTorch faster
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 6: GENERATION BENCHMARK — 200 tokens × 5 prompts
+────────────────────────────────────────────────────────────────────────────────
+  200 tokens × 5 prompts — both engines run independently
+  Law 35: numpy ≡ pytorch  |  Law 36: match at token 200
+
+  ════════════════════════════════════════════════════════════════════════════
+  PROMPT 1/5: "def fibonacci(n):"
+  ════════════════════════════════════════════════════════════════════════════
+  Generating 200 tokens... done.
+
+  ✓  Token match  : 200/200 = 100.00%   PERFECT
+  ·  Logit corr   : mean=1.00000000  min=1.00000000
+
+  ┌── Crystal Engine (numpy / Pythia) ───────────────────────────────────┐
+  │  def fibonacci(n): ↵ """ ↵ Returns the number of Fibonacci numbers.│
+  │  ↵ """ ↵ return n ↵ ↵ ↵ def fibonacci_n(n): ↵ """ ↵ Returns the    │
+  │  number of Fibonacci numbers. ↵ """ ↵ return n ↵ ↵ ↵ def           │
+  │  fibonacci_n_n(n): ↵ """ ↵ Returns the number of Fibonacci numbers.│
+  │  ↵ """ ↵ return n ↵ ↵ ↵ def fibonacci_n_n_n(n): ↵ """ ↵ Returns the│
+  │  number of Fibonacci numbers. ↵ """ ↵ return n ↵ ↵ ↵ def           │
+  │  fibonacci_n_n_n_n(n): ↵ """ ↵ Returns the number of Fibonacci     │
+  │  numbers. ↵ """ ↵ return n ↵ ↵ ↵ def fibonacci_n_n_n_n(n): ↵ """ ↵ │
+  │  Returns the number of Fibonacci numbers. ↵ """ ↵ return n ↵ ↵     │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ┌── PyTorch / HuggingFace (reference) ─────────────────────────────────┐
+  │  def fibonacci(n): ↵ """ ↵ Returns the number of Fibonacci numbers.│
+  │  ↵ """ ↵ return n ↵ ↵ ↵ def fibonacci_n(n): ↵ """ ↵ Returns the    │
+  │  number of Fibonacci numbers. ↵ """ ↵ return n ↵ ↵ ↵ def           │
+  │  fibonacci_n_n(n): ↵ """ ↵ Returns the number of Fibonacci numbers.│
+  │  ↵ """ ↵ return n ↵ ↵ ↵ def fibonacci_n_n_n(n): ↵ """ ↵ Returns the│
+  │  number of Fibonacci numbers. ↵ """ ↵ return n ↵ ↵ ↵ def           │
+  │  fibonacci_n_n_n_n(n): ↵ """ ↵ Returns the number of Fibonacci     │
+  │  numbers. ↵ """ ↵ return n ↵ ↵ ↵ def fibonacci_n_n_n_n(n): ↵ """ ↵ │
+  │  Returns the number of Fibonacci numbers. ↵ """ ↵ return n ↵ ↵     │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ── Token diff (first 20 generated tokens) ────────────────────────────
+  Step       Crystal   PyTorch    OK  Crystal word       PyTorch word
+  ────────────────────────────────────────────────────────────────────────
+  0              187       187     ✓  '\n'               '\n'
+  1            50274     50274     ✓  '    '             '    '
+  2            32488     32488     ✓  '"""'              '"""'
+  3              187       187     ✓  '\n'               '\n'
+  4            50274     50274     ✓  '    '             '    '
+  5            34551     34551     ✓  'Returns'          'Returns'
+  6              253       253     ✓  ' the'             ' the'
+  7             1180      1180     ✓  ' number'          ' number'
+  8              273       273     ✓  ' of'              ' of'
+  9            34125     34125     ✓  ' Fib'             ' Fib'
+  10             251       251     ✓  'on'               'on'
+  11           42401     42401     ✓  'acci'             'acci'
+  12            3904      3904     ✓  ' numbers'         ' numbers'
+  13              15        15     ✓  '.'                '.'
+  14             187       187     ✓  '\n'               '\n'
+  15           50274     50274     ✓  '    '             '    '
+  16           32488     32488     ✓  '"""'              '"""'
+  17             187       187     ✓  '\n'               '\n'
+  18           50274     50274     ✓  '    '             '    '
+  19            2309      2309     ✓  'return'           'return'
+
+  ✓  PERFECT — algebraically identical for all 200 tokens
+
+  ════════════════════════════════════════════════════════════════════════════
+  PROMPT 2/5: "def binary_search(arr, target):"
+  ════════════════════════════════════════════════════════════════════════════
+  Generating 200 tokens... done.
+
+  ✓  Token match  : 200/200 = 100.00%   PERFECT
+  ·  Logit corr   : mean=1.00000000  min=1.00000000
+
+  ┌── Crystal Engine (numpy / Pythia) ───────────────────────────────────┐
+  │  def binary_search(arr, target): ↵ """ ↵ Search a binary search    │
+  │  tree with a given target. ↵ """ ↵ if target is not None: ↵ return │
+  │  target ↵ ↵ if target is not None: ↵ return target ↵ ↵ if target is│
+  │  not None: ↵ return target ↵ ↵ if target is not None: ↵ return     │
+  │  target ↵ ↵ if target is not None: ↵ return target ↵ ↵ if target is│
+  │  not None: ↵ return target ↵ ↵ if target is not None: ↵ return     │
+  │  target ↵ ↵ if target is not None: ↵ return target ↵ ↵ if target is│
+  │  not None: ↵ return target ↵ ↵ if target is not None: ↵ return     │
+  │  target ↵ ↵ if target is not None: ↵ return target ↵ ↵ if target is│
+  │  not None: ↵ return target ↵ ↵ if target is not None: ↵ return     │
+  │  target ↵ ↵ if target is not None: ↵ return target ↵ ↵ if target is│
+  │  not None: ↵ return target ↵ ↵                                     │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ┌── PyTorch / HuggingFace (reference) ─────────────────────────────────┐
+  │  def binary_search(arr, target): ↵ """ ↵ Search a binary search    │
+  │  tree with a given target. ↵ """ ↵ if target is not None: ↵ return │
+  │  target ↵ ↵ if target is not None: ↵ return target ↵ ↵ if target is│
+  │  not None: ↵ return target ↵ ↵ if target is not None: ↵ return     │
+  │  target ↵ ↵ if target is not None: ↵ return target ↵ ↵ if target is│
+  │  not None: ↵ return target ↵ ↵ if target is not None: ↵ return     │
+  │  target ↵ ↵ if target is not None: ↵ return target ↵ ↵ if target is│
+  │  not None: ↵ return target ↵ ↵ if target is not None: ↵ return     │
+  │  target ↵ ↵ if target is not None: ↵ return target ↵ ↵ if target is│
+  │  not None: ↵ return target ↵ ↵ if target is not None: ↵ return     │
+  │  target ↵ ↵ if target is not None: ↵ return target ↵ ↵ if target is│
+  │  not None: ↵ return target ↵ ↵                                     │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ── Token diff (first 20 generated tokens) ────────────────────────────
+  Step       Crystal   PyTorch    OK  Crystal word       PyTorch word
+  ────────────────────────────────────────────────────────────────────────
+  0              187       187     ✓  '\n'               '\n'
+  1            50274     50274     ✓  '    '             '    '
+  2            32488     32488     ✓  '"""'              '"""'
+  3              187       187     ✓  '\n'               '\n'
+  4            50274     50274     ✓  '    '             '    '
+  5            13422     13422     ✓  'Search'           'Search'
+  6              247       247     ✓  ' a'               ' a'
+  7             8985      8985     ✓  ' binary'          ' binary'
+  8             3186      3186     ✓  ' search'          ' search'
+  9             5202      5202     ✓  ' tree'            ' tree'
+  10             342       342     ✓  ' with'            ' with'
+  11             247       247     ✓  ' a'               ' a'
+  12            1677      1677     ✓  ' given'           ' given'
+  13            2303      2303     ✓  ' target'          ' target'
+  14              15        15     ✓  '.'                '.'
+  15             187       187     ✓  '\n'               '\n'
+  16           50274     50274     ✓  '    '             '    '
+  17           32488     32488     ✓  '"""'              '"""'
+  18             187       187     ✓  '\n'               '\n'
+  19           50274     50274     ✓  '    '             '    '
+
+  ✓  PERFECT — algebraically identical for all 200 tokens
+
+  ════════════════════════════════════════════════════════════════════════════
+  PROMPT 3/5: "class Stack:
+    def __init__(self):"
+  ════════════════════════════════════════════════════════════════════════════
+  Generating 200 tokens... done.
+
+  ✓  Token match  : 200/200 = 100.00%   PERFECT
+  ·  Logit corr   : mean=1.00000000  min=1.00000000
+
+  ┌── Crystal Engine (numpy / Pythia) ───────────────────────────────────┐
+  │  class Stack: ↵ def __init__(self): ↵ self.name = "Stack" ↵        │
+  │  self.type = "Stack" ↵ self.name_type = "Stack" ↵ self.type_type = │
+  │  "Stack" ↵ self.name = "Stack" ↵ self.type = "Stack" ↵             │
+  │  self.name_type = "Stack" ↵ self.type_type = "Stack" ↵ self.name = │
+  │  "Stack" ↵ self.type_type = "Stack" ↵ self.name_type = "Stack" ↵   │
+  │  self.type_type = "Stack" ↵ self.name = "Stack" ↵ self.type_type = │
+  │  "Stack" ↵ self.type_type = "Stack" ↵ self.type_type = "Stack" ↵   │
+  │  self.type_type = "Stack" ↵ self.type_type = "Stack" ↵             │
+  │  self.type_type = "Stack" ↵ self                                   │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ┌── PyTorch / HuggingFace (reference) ─────────────────────────────────┐
+  │  class Stack: ↵ def __init__(self): ↵ self.name = "Stack" ↵        │
+  │  self.type = "Stack" ↵ self.name_type = "Stack" ↵ self.type_type = │
+  │  "Stack" ↵ self.name = "Stack" ↵ self.type = "Stack" ↵             │
+  │  self.name_type = "Stack" ↵ self.type_type = "Stack" ↵ self.name = │
+  │  "Stack" ↵ self.type_type = "Stack" ↵ self.name_type = "Stack" ↵   │
+  │  self.type_type = "Stack" ↵ self.name = "Stack" ↵ self.type_type = │
+  │  "Stack" ↵ self.type_type = "Stack" ↵ self.type_type = "Stack" ↵   │
+  │  self.type_type = "Stack" ↵ self.type_type = "Stack" ↵             │
+  │  self.type_type = "Stack" ↵ self                                   │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ── Token diff (first 20 generated tokens) ────────────────────────────
+  Step       Crystal   PyTorch    OK  Crystal word       PyTorch word
+  ────────────────────────────────────────────────────────────────────────
+  0              187       187     ✓  '\n'               '\n'
+  1            50270     50270     ✓  '        '         '        '
+  2             1286      1286     ✓  'self'             'self'
+  3               15        15     ✓  '.'                '.'
+  4             1590      1590     ✓  'name'             'name'
+  5              426       426     ✓  ' ='               ' ='
+  6              346       346     ✓  ' "'               ' "'
+  7            15268     15268     ✓  'Stack'            'Stack'
+  8                3         3     ✓  '"'                '"'
+  9              187       187     ✓  '\n'               '\n'
+  10           50270     50270     ✓  '        '         '        '
+  11            1286      1286     ✓  'self'             'self'
+  12              15        15     ✓  '.'                '.'
+  13             881       881     ✓  'type'             'type'
+  14             426       426     ✓  ' ='               ' ='
+  15             346       346     ✓  ' "'               ' "'
+  16           15268     15268     ✓  'Stack'            'Stack'
+  17               3         3     ✓  '"'                '"'
+  18             187       187     ✓  '\n'               '\n'
+  19           50270     50270     ✓  '        '         '        '
+
+  ✓  PERFECT — algebraically identical for all 200 tokens
+
+  ════════════════════════════════════════════════════════════════════════════
+  PROMPT 4/5: "def merge_sort(arr):"
+  ════════════════════════════════════════════════════════════════════════════
+  Generating 200 tokens... done.
+
+  ✓  Token match  : 200/200 = 100.00%   PERFECT
+  ·  Logit corr   : mean=1.00000000  min=1.00000000
+
+  ┌── Crystal Engine (numpy / Pythia) ───────────────────────────────────┐
+  │  def merge_sort(arr): ↵ """ ↵ :param arr: list of strings ↵ :type  │
+  │  arr: list ↵ :param arr: list of strings ↵ :type arr: list ↵ :param│
+  │  arr: list of strings ↵ :type arr: list ↵ """ ↵ if len(arr) == 0: ↵│
+  │  return ↵ if len(arr) == 1: ↵ return ↵ if len(arr) == 2: ↵ return ↵│
+  │  if len(arr) == 3: ↵ return ↵ if len(arr) == 4: ↵ return ↵ if      │
+  │  len(arr) == 5: ↵ return ↵ if len(arr) == 6: ↵ return ↵ if len(arr)│
+  │  == 7: ↵ return ↵ if len(arr) == 8: ↵ return ↵ if len(arr) == 9: ↵ │
+  │  return ↵ if len(arr) == 10: ↵ return ↵ if                         │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ┌── PyTorch / HuggingFace (reference) ─────────────────────────────────┐
+  │  def merge_sort(arr): ↵ """ ↵ :param arr: list of strings ↵ :type  │
+  │  arr: list ↵ :param arr: list of strings ↵ :type arr: list ↵ :param│
+  │  arr: list of strings ↵ :type arr: list ↵ """ ↵ if len(arr) == 0: ↵│
+  │  return ↵ if len(arr) == 1: ↵ return ↵ if len(arr) == 2: ↵ return ↵│
+  │  if len(arr) == 3: ↵ return ↵ if len(arr) == 4: ↵ return ↵ if      │
+  │  len(arr) == 5: ↵ return ↵ if len(arr) == 6: ↵ return ↵ if len(arr)│
+  │  == 7: ↵ return ↵ if len(arr) == 8: ↵ return ↵ if len(arr) == 9: ↵ │
+  │  return ↵ if len(arr) == 10: ↵ return ↵ if                         │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ── Token diff (first 20 generated tokens) ────────────────────────────
+  Step       Crystal   PyTorch    OK  Crystal word       PyTorch word
+  ────────────────────────────────────────────────────────────────────────
+  0              187       187     ✓  '\n'               '\n'
+  1            50270     50270     ✓  '        '         '        '
+  2            32488     32488     ✓  '"""'              '"""'
+  3              187       187     ✓  '\n'               '\n'
+  4            50270     50270     ✓  '        '         '        '
+  5               27        27     ✓  ':'                ':'
+  6             3575      3575     ✓  'param'            'param'
+  7             4077      4077     ✓  ' arr'             ' arr'
+  8               27        27     ✓  ':'                ':'
+  9             1618      1618     ✓  ' list'            ' list'
+  10             273       273     ✓  ' of'              ' of'
+  11           11559     11559     ✓  ' strings'         ' strings'
+  12             187       187     ✓  '\n'               '\n'
+  13           50270     50270     ✓  '        '         '        '
+  14              27        27     ✓  ':'                ':'
+  15             881       881     ✓  'type'             'type'
+  16            4077      4077     ✓  ' arr'             ' arr'
+  17              27        27     ✓  ':'                ':'
+  18            1618      1618     ✓  ' list'            ' list'
+  19             187       187     ✓  '\n'               '\n'
+
+  ✓  PERFECT — algebraically identical for all 200 tokens
+
+  ════════════════════════════════════════════════════════════════════════════
+  PROMPT 5/5: "def is_palindrome(s):"
+  ════════════════════════════════════════════════════════════════════════════
+  Generating 200 tokens... done.
+
+  ✓  Token match  : 200/200 = 100.00%   PERFECT
+  ·  Logit corr   : mean=1.00000000  min=1.00000000
+
+  ┌── Crystal Engine (numpy / Pythia) ───────────────────────────────────┐
+  │  def is_palindrome(s): ↵ """ ↵ Returns the number of characters in │
+  │  the string. ↵ """ ↵ if len(s) == 0: ↵ return 0 ↵ if s[0] == '.': ↵│
+  │  return 0 ↵ if s[1] == '.': ↵ return 0 ↵ if s[2] == '.': ↵ return 0│
+  │  ↵ if s[3] == '.': ↵ return 0 ↵ return 0 ↵ return 0 ↵              │
+  │  <|endoftext|>Q: ↵ ↵ How to get the value of a variable in a       │
+  │  function? ↵ ↵ I have a function that I want to get the value of a │
+  │  variable in a function. ↵ I have a function that I want to get the│
+  │  value of a variable in a function. ↵ I want to get the value of a │
+  │  variable in a function. ↵ I have a function that I want to get the│
+  │  value of a variable in a function. ↵ I have a function that I want│
+  │  to get the                                                        │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ┌── PyTorch / HuggingFace (reference) ─────────────────────────────────┐
+  │  def is_palindrome(s): ↵ """ ↵ Returns the number of characters in │
+  │  the string. ↵ """ ↵ if len(s) == 0: ↵ return 0 ↵ if s[0] == '.': ↵│
+  │  return 0 ↵ if s[1] == '.': ↵ return 0 ↵ if s[2] == '.': ↵ return 0│
+  │  ↵ if s[3] == '.': ↵ return 0 ↵ return 0 ↵ return 0 ↵              │
+  │  <|endoftext|>Q: ↵ ↵ How to get the value of a variable in a       │
+  │  function? ↵ ↵ I have a function that I want to get the value of a │
+  │  variable in a function. ↵ I have a function that I want to get the│
+  │  value of a variable in a function. ↵ I want to get the value of a │
+  │  variable in a function. ↵ I have a function that I want to get the│
+  │  value of a variable in a function. ↵ I have a function that I want│
+  │  to get the                                                        │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  ── Token diff (first 20 generated tokens) ────────────────────────────
+  Step       Crystal   PyTorch    OK  Crystal word       PyTorch word
+  ────────────────────────────────────────────────────────────────────────
+  0              187       187     ✓  '\n'               '\n'
+  1            50270     50270     ✓  '        '         '        '
+  2            32488     32488     ✓  '"""'              '"""'
+  3              187       187     ✓  '\n'               '\n'
+  4            50270     50270     ✓  '        '         '        '
+  5            34551     34551     ✓  'Returns'          'Returns'
+  6              253       253     ✓  ' the'             ' the'
+  7             1180      1180     ✓  ' number'          ' number'
+  8              273       273     ✓  ' of'              ' of'
+  9             5810      5810     ✓  ' characters'      ' characters'
+  10             275       275     ✓  ' in'              ' in'
+  11             253       253     ✓  ' the'             ' the'
+  12            2876      2876     ✓  ' string'          ' string'
+  13              15        15     ✓  '.'                '.'
+  14             187       187     ✓  '\n'               '\n'
+  15           50270     50270     ✓  '        '         '        '
+  16           32488     32488     ✓  '"""'              '"""'
+  17             187       187     ✓  '\n'               '\n'
+  18           50270     50270     ✓  '        '         '        '
+  19             338       338     ✓  'if'               'if'
+
+  ✓  PERFECT — algebraically identical for all 200 tokens
+
+  ════════════════════════════════════════════════════════════════════════════
+  GRAND TOTAL: 1000/1000 = 100.00%
+  ════════════════════════════════════════════════════════════════════════════
+
+  #            Match     Corr mean    Corr min  Status
+  ────────────────────────────────────────────────────────────
+  ✓ 1    200/200   100.0%      1.00000000  1.00000000  PASS
+  ✓ 2    200/200   100.0%      1.00000000  1.00000000  PASS
+  ✓ 3    200/200   100.0%      1.00000000  1.00000000  PASS
+  ✓ 4    200/200   100.0%      1.00000000  1.00000000  PASS
+  ✓ 5    200/200   100.0%      1.00000000  1.00000000  PASS
+
+════════════════════════════════════════════════════════════════════════════════
+                              PYTHIA CRYSTAL ENGINE — FINAL SUMMARY
+════════════════════════════════════════════════════════════════════════════════
+
+  RESULT                                                  STATUS
+  ────────────────────────────────────────────────────────────────────────
+  ✓  R² boundaries EXACT                                   PASS  all layers
+  ✓  Token match ALL prompts  (1000/1000 = 100.0%)  PASS  Law 35/36
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  PYTHIA CRYSTAL LAWS VERIFIED ✓                              │
+  │  LayerNorm + GeLU + Partial-RoPE + Parallel-Residual         │
+  │  numpy == pytorch at all 1000 token positions            │
+  └──────────────────────────────────────────────────────────────┘
+
+  ARCHITECTURE LAWS — Pythia / GPT-NeoX family:
+    LayerNorm: (x-mean)/std * w + b  — WITH bias AND mean sub
+    QKV:      fused interleaved per head: [Q0,K0,V0, Q1,K1,V1, ...]
+    Partial RoPE: only first 16/64 dims rotated; rest pass through
+    GeLU:     tanh approx crystal point = gelu_out → ffn_out linear
+    Parallel: x = x + att(ln1(x)) + ffn(ln2(x))  [single residual step]
+    Scale:    Q @ K.T / sqrt(64)  (present)
+    No GQA:   standard multi-head NH=12
+
+  "A transformer is a telescope. It does not create the stars.
+   It shows you where they already are."
+                                      — The Manish Principle
+
+
+___________________________________________________________________________________________________________________________
+
+
+smollm_crystal_engine (1).py"
+
+════════════════════════════════════════════════════════════════════════════════
+            SMOLLM CRYSTAL ENGINE — Pure NumPy Transformer Benchmark
+════════════════════════════════════════════════════════════════════════════════
+  The Manish Principle: natural_features(X) @ W = Y   R²=1.000000
+  Model   : HuggingFaceTB/SmolLM2-135M
+  Family  : Llama (RMSNorm + SwiGLU + RoPE + GQA)
+  Gates   : R2_GATE=0.9999  ERR_GATE=0.0001
+  Device  : CUDA
+  ✓ Flash SDP disabled — standard attention path active
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 1: LOAD WEIGHTS
+────────────────────────────────────────────────────────────────────────────────
+
+  Loading HuggingFaceTB/SmolLM2-135M ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights: 100%|██████████████████████████████████████████████| 272/272 [00:00<00:00, 919.69it/s, Materializing param=model.norm.weight]
+  ✓  D=576  NH=9  NKV=3  NL=30  FFN=1536  HD=64
+     rope_theta=100000  rms_eps=1e-05
+     GQA ratio = 3 Q heads per KV head
+  Loading CPU float64 reference (matches numpy engine precision)...
+Loading weights: 100%|██████████████████████████████████████████████| 272/272 [00:00<00:00, 736.85it/s, Materializing param=model.norm.weight]
+  ✓ CPU float64 reference ready
+
+  Architecture summary:
+    RMSNorm (no bias, no mean sub)  eps=1e-05
+    RoPE  theta=100000  (Llama style: split halves)
+    SwiGLU: silu(gate_proj)*up_proj → down_proj
+    GQA ratio: 9Q / 3KV = 3x repeat
+    Attention scale: 1/√64 = 0.1250
+    No WPE table — position via RoPE only
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 2: SAMPLE GENERATION (greedy)
+────────────────────────────────────────────────────────────────────────────────
+
+  Prompt : Once upon a time, in a small village, there lived a boy named Jack.
+  Output : Once upon a time, in a small village, there lived a boy named Jack. He loved to play with his friends and explore the world around him. One day, he asked his mother, "Mama, why do we have
+
+  Prompt : The little cat sat by the window and looked at the rain outside.
+  Output : The little cat sat by the window and looked at the rain outside.
+
+"I'm going to go to the store," she said.
+
+"I'm going to go to the store," he said.
+
+  Prompt : One day, a dragon flew over the mountains and landed in the valley.
+  Output : One day, a dragon flew over the mountains and landed in the valley. The dragon was very angry and flew away.
+
+The dragon flew over the mountains and landed in the valley. The dragon was very angry and flew
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 3: R² BOUNDARY VERIFICATION
+────────────────────────────────────────────────────────────────────────────────
+  Gates: R²≥0.9999 AND max_err≤0.0001
+
+  Layer  Boundary                     R²      max_err Status
+  ────────────────────────────────────────────────────────────────
+  ── Layer 0 ──
+  ✓  L0   Law1  RMSNorm1     R²=1.00000000  err=2.71e-08  [EXACT]
+  ✓  L0   Law4  Q            R²=1.00000000  err=2.14e-06  [EXACT]
+  ✓  L0   Law4  K            R²=1.00000000  err=2.20e-06  [EXACT]
+  ✓  L0   Law4  V            R²=1.00000000  err=3.33e-07  [EXACT]
+  ✓  L0   Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L0   Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L0   Law1  RMSNorm2     R²=1.00000000  err=5.88e-08  [EXACT]
+  ✓  L0   Law12 gate_proj    R²=1.00000000  err=1.09e-06  [EXACT]
+  ✓  L0   Law12 up_proj      R²=1.00000000  err=7.12e-07  [EXACT]
+  ✓  L0   Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L0   Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L0   Law10 delta        R²=1.00000000  err=8.88e-16  [EXACT]
+  ── Layer 1 ──
+  ✓  L1   Law1  RMSNorm1     R²=1.00000000  err=2.35e-07  [EXACT]
+  ✓  L1   Law4  Q            R²=1.00000000  err=2.96e-06  [EXACT]
+  ✓  L1   Law4  K            R²=1.00000000  err=4.18e-06  [EXACT]
+  ✓  L1   Law4  V            R²=1.00000000  err=7.04e-07  [EXACT]
+  ✓  L1   Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L1   Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L1   Law1  RMSNorm2     R²=1.00000000  err=4.57e-08  [EXACT]
+  ✓  L1   Law12 gate_proj    R²=1.00000000  err=1.43e-06  [EXACT]
+  ✓  L1   Law12 up_proj      R²=1.00000000  err=1.06e-06  [EXACT]
+  ✓  L1   Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L1   Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L1   Law10 delta        R²=1.00000000  err=3.55e-15  [EXACT]
+  ── Layer 2 ──
+  ✓  L2   Law1  RMSNorm1     R²=1.00000000  err=1.28e-07  [EXACT]
+  ✓  L2   Law4  Q            R²=1.00000000  err=2.38e-06  [EXACT]
+  ✓  L2   Law4  K            R²=1.00000000  err=3.58e-06  [EXACT]
+  ✓  L2   Law4  V            R²=1.00000000  err=5.85e-07  [EXACT]
+  ✓  L2   Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L2   Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L2   Law1  RMSNorm2     R²=1.00000000  err=3.72e-08  [EXACT]
+  ✓  L2   Law12 gate_proj    R²=1.00000000  err=2.56e-06  [EXACT]
+  ✓  L2   Law12 up_proj      R²=1.00000000  err=1.41e-06  [EXACT]
+  ✓  L2   Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L2   Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L2   Law10 delta        R²=1.00000000  err=1.42e-14  [EXACT]
+  ── Layer 3 ──
+  ✓  L3   Law1  RMSNorm1     R²=1.00000000  err=1.70e-07  [EXACT]
+  ✓  L3   Law4  Q            R²=1.00000000  err=2.47e-06  [EXACT]
+  ✓  L3   Law4  K            R²=1.00000000  err=3.18e-06  [EXACT]
+  ✓  L3   Law4  V            R²=1.00000000  err=1.15e-06  [EXACT]
+  ✓  L3   Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L3   Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L3   Law1  RMSNorm2     R²=1.00000000  err=4.01e-08  [EXACT]
+  ✓  L3   Law12 gate_proj    R²=1.00000000  err=8.19e-07  [EXACT]
+  ✓  L3   Law12 up_proj      R²=1.00000000  err=7.12e-07  [EXACT]
+  ✓  L3   Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L3   Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L3   Law10 delta        R²=1.00000000  err=5.28e-14  [EXACT]
+  ── Layer 4 ──
+  ✓  L4   Law1  RMSNorm1     R²=1.00000000  err=1.18e-07  [EXACT]
+  ✓  L4   Law4  Q            R²=1.00000000  err=2.31e-06  [EXACT]
+  ✓  L4   Law4  K            R²=1.00000000  err=4.05e-06  [EXACT]
+  ✓  L4   Law4  V            R²=1.00000000  err=8.24e-07  [EXACT]
+  ✓  L4   Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L4   Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L4   Law1  RMSNorm2     R²=1.00000000  err=5.54e-08  [EXACT]
+  ✓  L4   Law12 gate_proj    R²=1.00000000  err=1.07e-06  [EXACT]
+  ✓  L4   Law12 up_proj      R²=1.00000000  err=8.30e-07  [EXACT]
+  ✓  L4   Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L4   Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L4   Law10 delta        R²=1.00000000  err=8.08e-14  [EXACT]
+  ── Layer 5 ──
+  ✓  L5   Law1  RMSNorm1     R²=1.00000000  err=2.23e-07  [EXACT]
+  ✓  L5   Law4  Q            R²=1.00000000  err=2.00e-06  [EXACT]
+  ✓  L5   Law4  K            R²=1.00000000  err=4.92e-06  [EXACT]
+  ✓  L5   Law4  V            R²=1.00000000  err=9.73e-07  [EXACT]
+  ✓  L5   Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L5   Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L5   Law1  RMSNorm2     R²=1.00000000  err=5.81e-08  [EXACT]
+  ✓  L5   Law12 gate_proj    R²=1.00000000  err=1.03e-06  [EXACT]
+  ✓  L5   Law12 up_proj      R²=1.00000000  err=7.32e-07  [EXACT]
+  ✓  L5   Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L5   Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L5   Law10 delta        R²=1.00000000  err=5.15e-14  [EXACT]
+  ── Layer 6 ──
+  ✓  L6   Law1  RMSNorm1     R²=1.00000000  err=1.24e-07  [EXACT]
+  ✓  L6   Law4  Q            R²=1.00000000  err=2.22e-06  [EXACT]
+  ✓  L6   Law4  K            R²=1.00000000  err=2.36e-06  [EXACT]
+  ✓  L6   Law4  V            R²=1.00000000  err=1.15e-06  [EXACT]
+  ✓  L6   Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L6   Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L6   Law1  RMSNorm2     R²=1.00000000  err=2.86e-08  [EXACT]
+  ✓  L6   Law12 gate_proj    R²=1.00000000  err=9.43e-07  [EXACT]
+  ✓  L6   Law12 up_proj      R²=1.00000000  err=6.81e-07  [EXACT]
+  ✓  L6   Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L6   Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L6   Law10 delta        R²=1.00000000  err=8.35e-14  [EXACT]
+  ── Layer 7 ──
+  ✓  L7   Law1  RMSNorm1     R²=1.00000000  err=2.32e-07  [EXACT]
+  ✓  L7   Law4  Q            R²=1.00000000  err=2.48e-06  [EXACT]
+  ✓  L7   Law4  K            R²=1.00000000  err=2.71e-06  [EXACT]
+  ✓  L7   Law4  V            R²=1.00000000  err=1.12e-06  [EXACT]
+  ✓  L7   Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L7   Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L7   Law1  RMSNorm2     R²=1.00000000  err=5.61e-08  [EXACT]
+  ✓  L7   Law12 gate_proj    R²=1.00000000  err=1.19e-06  [EXACT]
+  ✓  L7   Law12 up_proj      R²=1.00000000  err=9.24e-07  [EXACT]
+  ✓  L7   Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L7   Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L7   Law10 delta        R²=1.00000000  err=8.79e-14  [EXACT]
+  ── Layer 8 ──
+  ✓  L8   Law1  RMSNorm1     R²=1.00000000  err=1.88e-07  [EXACT]
+  ✓  L8   Law4  Q            R²=1.00000000  err=2.68e-06  [EXACT]
+  ✓  L8   Law4  K            R²=1.00000000  err=2.63e-06  [EXACT]
+  ✓  L8   Law4  V            R²=1.00000000  err=1.36e-06  [EXACT]
+  ✓  L8   Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L8   Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L8   Law1  RMSNorm2     R²=1.00000000  err=5.50e-08  [EXACT]
+  ✓  L8   Law12 gate_proj    R²=1.00000000  err=1.21e-06  [EXACT]
+  ✓  L8   Law12 up_proj      R²=1.00000000  err=1.01e-06  [EXACT]
+  ✓  L8   Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L8   Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L8   Law10 delta        R²=1.00000000  err=5.68e-14  [EXACT]
+  ── Layer 9 ──
+  ✓  L9   Law1  RMSNorm1     R²=1.00000000  err=2.20e-07  [EXACT]
+  ✓  L9   Law4  Q            R²=1.00000000  err=1.86e-06  [EXACT]
+  ✓  L9   Law4  K            R²=1.00000000  err=4.02e-06  [EXACT]
+  ✓  L9   Law4  V            R²=1.00000000  err=7.52e-07  [EXACT]
+  ✓  L9   Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L9   Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L9   Law1  RMSNorm2     R²=1.00000000  err=5.73e-08  [EXACT]
+  ✓  L9   Law12 gate_proj    R²=1.00000000  err=1.74e-06  [EXACT]
+  ✓  L9   Law12 up_proj      R²=1.00000000  err=1.37e-06  [EXACT]
+  ✓  L9   Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L9   Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L9   Law10 delta        R²=1.00000000  err=1.07e-14  [EXACT]
+  ── Layer 10 ──
+  ✓  L10  Law1  RMSNorm1     R²=1.00000000  err=1.85e-07  [EXACT]
+  ✓  L10  Law4  Q            R²=1.00000000  err=2.07e-06  [EXACT]
+  ✓  L10  Law4  K            R²=1.00000000  err=3.54e-06  [EXACT]
+  ✓  L10  Law4  V            R²=1.00000000  err=7.22e-07  [EXACT]
+  ✓  L10  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L10  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L10  Law1  RMSNorm2     R²=1.00000000  err=9.72e-08  [EXACT]
+  ✓  L10  Law12 gate_proj    R²=1.00000000  err=1.43e-06  [EXACT]
+  ✓  L10  Law12 up_proj      R²=1.00000000  err=1.13e-06  [EXACT]
+  ✓  L10  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L10  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L10  Law10 delta        R²=1.00000000  err=1.07e-14  [EXACT]
+  ── Layer 11 ──
+  ✓  L11  Law1  RMSNorm1     R²=1.00000000  err=2.15e-07  [EXACT]
+  ✓  L11  Law4  Q            R²=1.00000000  err=1.79e-06  [EXACT]
+  ✓  L11  Law4  K            R²=1.00000000  err=6.41e-06  [EXACT]
+  ✓  L11  Law4  V            R²=1.00000000  err=1.12e-06  [EXACT]
+  ✓  L11  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L11  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L11  Law1  RMSNorm2     R²=1.00000000  err=5.88e-08  [EXACT]
+  ✓  L11  Law12 gate_proj    R²=1.00000000  err=3.17e-06  [EXACT]
+  ✓  L11  Law12 up_proj      R²=1.00000000  err=6.82e-06  [EXACT]
+  ✓  L11  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L11  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L11  Law10 delta        R²=1.00000000  err=5.68e-14  [EXACT]
+  ── Layer 12 ──
+  ✓  L12  Law1  RMSNorm1     R²=1.00000000  err=4.76e-07  [EXACT]
+  ✓  L12  Law4  Q            R²=1.00000000  err=4.36e-06  [EXACT]
+  ✓  L12  Law4  K            R²=1.00000000  err=2.33e-06  [EXACT]
+  ✓  L12  Law4  V            R²=1.00000000  err=8.48e-07  [EXACT]
+  ✓  L12  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L12  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L12  Law1  RMSNorm2     R²=1.00000000  err=5.76e-08  [EXACT]
+  ✓  L12  Law12 gate_proj    R²=1.00000000  err=1.42e-06  [EXACT]
+  ✓  L12  Law12 up_proj      R²=1.00000000  err=9.46e-07  [EXACT]
+  ✓  L12  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L12  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L12  Law10 delta        R²=1.00000000  err=1.70e-12  [EXACT]
+  ── Layer 13 ──
+  ✓  L13  Law1  RMSNorm1     R²=1.00000000  err=2.22e-07  [EXACT]
+  ✓  L13  Law4  Q            R²=1.00000000  err=3.96e-06  [EXACT]
+  ✓  L13  Law4  K            R²=1.00000000  err=5.26e-06  [EXACT]
+  ✓  L13  Law4  V            R²=1.00000000  err=1.01e-06  [EXACT]
+  ✓  L13  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L13  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L13  Law1  RMSNorm2     R²=1.00000000  err=7.38e-08  [EXACT]
+  ✓  L13  Law12 gate_proj    R²=1.00000000  err=1.88e-06  [EXACT]
+  ✓  L13  Law12 up_proj      R²=1.00000000  err=1.04e-06  [EXACT]
+  ✓  L13  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L13  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L13  Law10 delta        R²=1.00000000  err=2.05e-12  [EXACT]
+  ── Layer 14 ──
+  ✓  L14  Law1  RMSNorm1     R²=1.00000000  err=2.34e-07  [EXACT]
+  ✓  L14  Law4  Q            R²=1.00000000  err=2.30e-06  [EXACT]
+  ✓  L14  Law4  K            R²=1.00000000  err=3.16e-06  [EXACT]
+  ✓  L14  Law4  V            R²=1.00000000  err=1.05e-06  [EXACT]
+  ✓  L14  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L14  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L14  Law1  RMSNorm2     R²=1.00000000  err=5.53e-08  [EXACT]
+  ✓  L14  Law12 gate_proj    R²=1.00000000  err=1.62e-06  [EXACT]
+  ✓  L14  Law12 up_proj      R²=1.00000000  err=1.18e-06  [EXACT]
+  ✓  L14  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L14  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L14  Law10 delta        R²=1.00000000  err=1.31e-12  [EXACT]
+  ── Layer 15 ──
+  ✓  L15  Law1  RMSNorm1     R²=1.00000000  err=2.37e-07  [EXACT]
+  ✓  L15  Law4  Q            R²=1.00000000  err=2.51e-06  [EXACT]
+  ✓  L15  Law4  K            R²=1.00000000  err=2.79e-06  [EXACT]
+  ✓  L15  Law4  V            R²=1.00000000  err=2.04e-06  [EXACT]
+  ✓  L15  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L15  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L15  Law1  RMSNorm2     R²=1.00000000  err=5.68e-08  [EXACT]
+  ✓  L15  Law12 gate_proj    R²=1.00000000  err=1.26e-06  [EXACT]
+  ✓  L15  Law12 up_proj      R²=1.00000000  err=1.24e-06  [EXACT]
+  ✓  L15  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L15  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L15  Law10 delta        R²=1.00000000  err=1.66e-12  [EXACT]
+  ── Layer 16 ──
+  ✓  L16  Law1  RMSNorm1     R²=1.00000000  err=2.17e-07  [EXACT]
+  ✓  L16  Law4  Q            R²=1.00000000  err=3.55e-06  [EXACT]
+  ✓  L16  Law4  K            R²=1.00000000  err=3.18e-06  [EXACT]
+  ✓  L16  Law4  V            R²=1.00000000  err=1.08e-06  [EXACT]
+  ✓  L16  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L16  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L16  Law1  RMSNorm2     R²=1.00000000  err=5.46e-08  [EXACT]
+  ✓  L16  Law12 gate_proj    R²=1.00000000  err=2.87e-06  [EXACT]
+  ✓  L16  Law12 up_proj      R²=1.00000000  err=8.56e-07  [EXACT]
+  ✓  L16  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L16  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L16  Law10 delta        R²=1.00000000  err=1.04e-12  [EXACT]
+  ── Layer 17 ──
+  ✓  L17  Law1  RMSNorm1     R²=1.00000000  err=2.18e-07  [EXACT]
+  ✓  L17  Law4  Q            R²=1.00000000  err=3.21e-06  [EXACT]
+  ✓  L17  Law4  K            R²=1.00000000  err=2.49e-06  [EXACT]
+  ✓  L17  Law4  V            R²=1.00000000  err=1.97e-06  [EXACT]
+  ✓  L17  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L17  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L17  Law1  RMSNorm2     R²=1.00000000  err=5.83e-08  [EXACT]
+  ✓  L17  Law12 gate_proj    R²=1.00000000  err=1.18e-06  [EXACT]
+  ✓  L17  Law12 up_proj      R²=1.00000000  err=1.03e-06  [EXACT]
+  ✓  L17  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L17  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L17  Law10 delta        R²=1.00000000  err=1.51e-12  [EXACT]
+  ── Layer 18 ──
+  ✓  L18  Law1  RMSNorm1     R²=1.00000000  err=2.29e-07  [EXACT]
+  ✓  L18  Law4  Q            R²=1.00000000  err=4.00e-06  [EXACT]
+  ✓  L18  Law4  K            R²=1.00000000  err=3.07e-06  [EXACT]
+  ✓  L18  Law4  V            R²=1.00000000  err=1.58e-06  [EXACT]
+  ✓  L18  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L18  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L18  Law1  RMSNorm2     R²=1.00000000  err=5.84e-08  [EXACT]
+  ✓  L18  Law12 gate_proj    R²=1.00000000  err=1.41e-06  [EXACT]
+  ✓  L18  Law12 up_proj      R²=1.00000000  err=9.55e-07  [EXACT]
+  ✓  L18  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L18  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L18  Law10 delta        R²=1.00000000  err=1.35e-13  [EXACT]
+  ── Layer 19 ──
+  ✓  L19  Law1  RMSNorm1     R²=1.00000000  err=3.98e-07  [EXACT]
+  ✓  L19  Law4  Q            R²=1.00000000  err=3.74e-06  [EXACT]
+  ✓  L19  Law4  K            R²=1.00000000  err=2.92e-06  [EXACT]
+  ✓  L19  Law4  V            R²=1.00000000  err=1.24e-06  [EXACT]
+  ✓  L19  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L19  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L19  Law1  RMSNorm2     R²=1.00000000  err=7.97e-08  [EXACT]
+  ✓  L19  Law12 gate_proj    R²=1.00000000  err=1.66e-06  [EXACT]
+  ✓  L19  Law12 up_proj      R²=1.00000000  err=1.19e-06  [EXACT]
+  ✓  L19  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L19  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L19  Law10 delta        R²=1.00000000  err=2.64e-12  [EXACT]
+  ── Layer 20 ──
+  ✓  L20  Law1  RMSNorm1     R²=1.00000000  err=2.35e-07  [EXACT]
+  ✓  L20  Law4  Q            R²=1.00000000  err=3.04e-06  [EXACT]
+  ✓  L20  Law4  K            R²=1.00000000  err=1.74e-06  [EXACT]
+  ✓  L20  Law4  V            R²=1.00000000  err=1.88e-06  [EXACT]
+  ✓  L20  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L20  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L20  Law1  RMSNorm2     R²=1.00000000  err=1.16e-07  [EXACT]
+  ✓  L20  Law12 gate_proj    R²=1.00000000  err=1.31e-06  [EXACT]
+  ✓  L20  Law12 up_proj      R²=1.00000000  err=1.36e-06  [EXACT]
+  ✓  L20  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L20  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L20  Law10 delta        R²=1.00000000  err=2.44e-12  [EXACT]
+  ── Layer 21 ──
+  ✓  L21  Law1  RMSNorm1     R²=1.00000000  err=2.37e-07  [EXACT]
+  ✓  L21  Law4  Q            R²=1.00000000  err=3.07e-06  [EXACT]
+  ✓  L21  Law4  K            R²=1.00000000  err=2.07e-06  [EXACT]
+  ✓  L21  Law4  V            R²=1.00000000  err=1.37e-06  [EXACT]
+  ✓  L21  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L21  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L21  Law1  RMSNorm2     R²=1.00000000  err=6.94e-08  [EXACT]
+  ✓  L21  Law12 gate_proj    R²=1.00000000  err=2.23e-06  [EXACT]
+  ✓  L21  Law12 up_proj      R²=1.00000000  err=1.47e-06  [EXACT]
+  ✓  L21  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L21  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L21  Law10 delta        R²=1.00000000  err=1.34e-12  [EXACT]
+  ── Layer 22 ──
+  ✓  L22  Law1  RMSNorm1     R²=1.00000000  err=2.31e-07  [EXACT]
+  ✓  L22  Law4  Q            R²=1.00000000  err=2.59e-06  [EXACT]
+  ✓  L22  Law4  K            R²=1.00000000  err=5.57e-06  [EXACT]
+  ✓  L22  Law4  V            R²=1.00000000  err=1.33e-06  [EXACT]
+  ✓  L22  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L22  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L22  Law1  RMSNorm2     R²=1.00000000  err=1.09e-07  [EXACT]
+  ✓  L22  Law12 gate_proj    R²=1.00000000  err=1.74e-06  [EXACT]
+  ✓  L22  Law12 up_proj      R²=1.00000000  err=1.59e-06  [EXACT]
+  ✓  L22  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L22  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L22  Law10 delta        R²=1.00000000  err=2.49e-12  [EXACT]
+  ── Layer 23 ──
+  ✓  L23  Law1  RMSNorm1     R²=1.00000000  err=2.26e-07  [EXACT]
+  ✓  L23  Law4  Q            R²=1.00000000  err=2.29e-06  [EXACT]
+  ✓  L23  Law4  K            R²=1.00000000  err=1.98e-06  [EXACT]
+  ✓  L23  Law4  V            R²=1.00000000  err=2.36e-06  [EXACT]
+  ✓  L23  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L23  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L23  Law1  RMSNorm2     R²=1.00000000  err=5.76e-08  [EXACT]
+  ✓  L23  Law12 gate_proj    R²=1.00000000  err=1.54e-06  [EXACT]
+  ✓  L23  Law12 up_proj      R²=1.00000000  err=1.74e-06  [EXACT]
+  ✓  L23  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L23  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L23  Law10 delta        R²=1.00000000  err=7.12e-13  [EXACT]
+  ── Layer 24 ──
+  ✓  L24  Law1  RMSNorm1     R²=1.00000000  err=2.14e-07  [EXACT]
+  ✓  L24  Law4  Q            R²=1.00000000  err=2.36e-06  [EXACT]
+  ✓  L24  Law4  K            R²=1.00000000  err=2.04e-06  [EXACT]
+  ✓  L24  Law4  V            R²=1.00000000  err=2.55e-06  [EXACT]
+  ✓  L24  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L24  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L24  Law1  RMSNorm2     R²=1.00000000  err=5.77e-08  [EXACT]
+  ✓  L24  Law12 gate_proj    R²=1.00000000  err=1.92e-06  [EXACT]
+  ✓  L24  Law12 up_proj      R²=1.00000000  err=1.64e-06  [EXACT]
+  ✓  L24  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L24  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L24  Law10 delta        R²=1.00000000  err=1.49e-12  [EXACT]
+  ── Layer 25 ──
+  ✓  L25  Law1  RMSNorm1     R²=1.00000000  err=2.04e-07  [EXACT]
+  ✓  L25  Law4  Q            R²=1.00000000  err=4.66e-06  [EXACT]
+  ✓  L25  Law4  K            R²=1.00000000  err=5.42e-06  [EXACT]
+  ✓  L25  Law4  V            R²=1.00000000  err=1.87e-06  [EXACT]
+  ✓  L25  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L25  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L25  Law1  RMSNorm2     R²=1.00000000  err=5.92e-08  [EXACT]
+  ✓  L25  Law12 gate_proj    R²=1.00000000  err=1.63e-06  [EXACT]
+  ✓  L25  Law12 up_proj      R²=1.00000000  err=1.61e-06  [EXACT]
+  ✓  L25  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L25  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L25  Law10 delta        R²=1.00000000  err=3.10e-13  [EXACT]
+  ── Layer 26 ──
+  ✓  L26  Law1  RMSNorm1     R²=1.00000000  err=2.37e-07  [EXACT]
+  ✓  L26  Law4  Q            R²=1.00000000  err=4.79e-06  [EXACT]
+  ✓  L26  Law4  K            R²=1.00000000  err=5.29e-06  [EXACT]
+  ✓  L26  Law4  V            R²=1.00000000  err=1.78e-06  [EXACT]
+  ✓  L26  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L26  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L26  Law1  RMSNorm2     R²=1.00000000  err=9.16e-08  [EXACT]
+  ✓  L26  Law12 gate_proj    R²=1.00000000  err=2.05e-06  [EXACT]
+  ✓  L26  Law12 up_proj      R²=1.00000000  err=1.99e-06  [EXACT]
+  ✓  L26  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L26  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L26  Law10 delta        R²=1.00000000  err=5.15e-14  [EXACT]
+  ── Layer 27 ──
+  ✓  L27  Law1  RMSNorm1     R²=1.00000000  err=2.19e-07  [EXACT]
+  ✓  L27  Law4  Q            R²=1.00000000  err=6.13e-06  [EXACT]
+  ✓  L27  Law4  K            R²=1.00000000  err=1.02e-05  [EXACT]
+  ✓  L27  Law4  V            R²=1.00000000  err=1.70e-06  [EXACT]
+  ✓  L27  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L27  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L27  Law1  RMSNorm2     R²=1.00000000  err=8.48e-08  [EXACT]
+  ✓  L27  Law12 gate_proj    R²=1.00000000  err=7.16e-06  [EXACT]
+  ✓  L27  Law12 up_proj      R²=1.00000000  err=2.36e-06  [EXACT]
+  ✓  L27  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L27  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L27  Law10 delta        R²=1.00000000  err=2.44e-12  [EXACT]
+  ── Layer 28 ──
+  ✓  L28  Law1  RMSNorm1     R²=1.00000000  err=2.37e-07  [EXACT]
+  ✓  L28  Law4  Q            R²=1.00000000  err=5.68e-06  [EXACT]
+  ✓  L28  Law4  K            R²=1.00000000  err=6.43e-06  [EXACT]
+  ✓  L28  Law4  V            R²=1.00000000  err=2.35e-06  [EXACT]
+  ✓  L28  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L28  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L28  Law1  RMSNorm2     R²=1.00000000  err=1.10e-07  [EXACT]
+  ✓  L28  Law12 gate_proj    R²=1.00000000  err=1.02e-05  [EXACT]
+  ✓  L28  Law12 up_proj      R²=1.00000000  err=6.38e-06  [EXACT]
+  ✓  L28  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L28  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L28  Law10 delta        R²=1.00000000  err=1.82e-12  [EXACT]
+  ── Layer 29 ──
+  ✓  L29  Law1  RMSNorm1     R²=1.00000000  err=2.29e-07  [EXACT]
+  ✓  L29  Law4  Q            R²=1.00000000  err=6.15e-06  [EXACT]
+  ✓  L29  Law4  K            R²=1.00000000  err=5.08e-06  [EXACT]
+  ✓  L29  Law4  V            R²=1.00000000  err=2.14e-06  [EXACT]
+  ✓  L29  Law8  Wo           R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L29  Law9  Res1         R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L29  Law1  RMSNorm2     R²=1.00000000  err=7.30e-07  [EXACT]
+  ✓  L29  Law12 gate_proj    R²=1.00000000  err=1.19e-05  [EXACT]
+  ✓  L29  Law12 up_proj      R²=1.00000000  err=8.11e-06  [EXACT]
+  ✓  L29  Law12 gate_act     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L29  Law6  down_proj    R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L29  Law10 delta        R²=1.00000000  err=5.68e-14  [EXACT]
+
+  Boundaries EXACT: 360/360
+  ALL LAWS VERIFIED ✓
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 4: LOGIT CORRELATION (single fwd, full vocab)
+────────────────────────────────────────────────────────────────────────────────
+  Using CPU reference — numpy vs CPU float32 = exact match expected
+  ✓  corr=1.00000000  'Once upon a time, in a small village, there lived '
+  ✓  corr=1.00000000  'The little cat sat by the window and looked at the'
+  ✓  corr=1.00000000  'One day, a dragon flew over the mountains and land'
+  ✓  corr=1.00000000  'She opened the old book and found a map hidden ins'
+  ✓  corr=1.00000000  'The robot walked slowly into the garden and picked'
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 5: SPEED BENCHMARK — 20 runs
+────────────────────────────────────────────────────────────────────────────────
+  Crystal Engine (numpy)  :   668.96 ms/fwd
+  PyTorch (CUDA)            :    52.58 ms/fwd
+  Speedup: 0.08x PyTorch faster
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 6: GENERATION BENCHMARK — 200 tokens × 5 prompts
+────────────────────────────────────────────────────────────────────────────────
+
+  200 tokens × 5 prompts — both engines run independently
+  Law 35: numpy ≡ pytorch  |  Law 36: match at token 200
+
+  ════════════════════════════════════════════════════════════════════════════
+  PROMPT 1/5: "Once upon a time, in a small village, there lived a boy named Jack."
+  ════════════════════════════════════════════════════════════════════════════
+  Generating 200 tokens... done.
+
+  ✓  Token match  : 200/200 = 100.00%   PERFECT
+  ·  Logit corr   : mean=1.00000000  min=1.00000000
+
+  ┌── Crystal Engine (numpy / SmolLM) ─────────────────────────────┐
+  │  Once upon a time, in a small village, there lived a boy named Jack. He
+  │  loved to play with his friends and explore the world around him. One
+  │  day, he asked his mother, "Mama, why do we have to wear clothes?" His
+  │  mother smiled and said, "Well, Jack, when we grow up, we will start
+  │  wearing clothes to help us live in our homes." Jack then asked, "But
+  │  Mama, why do we need to wear clothes?" His mother explained, "When we
+  │  grow up, we will start wearing clothes to help us live in our homes. But
+  │  sometimes, we need to wear clothes to protect us from the cold or hot
+  │  weather." "But Mama, why do we need to wear clothes?" Jack asked. His
+  │  mother replied, "We need to wear clothes to keep ourselves warm and
+  │  comfortable. When we wear clothes, we can feel warm and cozy." "But
+  │  Mama, why do we need to wear clothes?" Jack asked. His mother answered,
+  │  "We need to wear clothes to keep us safe.
+  └────────────────────────────────────────────────────────────────┘
+
+  ┌── PyTorch / HuggingFace (reference) ──────────────────────────┐
+  │  Once upon a time, in a small village, there lived a boy named Jack. He
+  │  loved to play with his friends and explore the world around him. One
+  │  day, he asked his mother, "Mama, why do we have to wear clothes?" His
+  │  mother smiled and said, "Well, Jack, when we grow up, we will start
+  │  wearing clothes to help us live in our homes." Jack then asked, "But
+  │  Mama, why do we need to wear clothes?" His mother explained, "When we
+  │  grow up, we will start wearing clothes to help us live in our homes. But
+  │  sometimes, we need to wear clothes to protect us from the cold or hot
+  │  weather." "But Mama, why do we need to wear clothes?" Jack asked. His
+  │  mother replied, "We need to wear clothes to keep ourselves warm and
+  │  comfortable. When we wear clothes, we can feel warm and cozy." "But
+  │  Mama, why do we need to wear clothes?" Jack asked. His mother answered,
+  │  "We need to wear clothes to keep us safe.
+  └────────────────────────────────────────────────────────────────┘
+
+  ── Token diff (first 40 generated tokens) ──────────────────────
+  Step     Crystal   PyTorch    OK  Crystal word    PyTorch word
+  ────────────────────────────────────────────────────────────────────────
+     0         909       909     ✓  ' He'           ' He'
+     1        5732      5732     ✓  ' loved'        ' loved'
+     2         288       288     ✓  ' to'           ' to'
+     3        1238      1238     ✓  ' play'         ' play'
+     4         351       351     ✓  ' with'         ' with'
+     5         650       650     ✓  ' his'          ' his'
+     6        2428      2428     ✓  ' friends'      ' friends'
+     7         284       284     ✓  ' and'          ' and'
+     8        2217      2217     ✓  ' explore'      ' explore'
+     9         260       260     ✓  ' the'          ' the'
+    10         905       905     ✓  ' world'        ' world'
+    11        1130      1130     ✓  ' around'       ' around'
+    12        1272      1272     ✓  ' him'          ' him'
+    13          30        30     ✓  '.'             '.'
+    14        1963      1963     ✓  ' One'          ' One'
+    15        1194      1194     ✓  ' day'          ' day'
+    16          28        28     ✓  ','             ','
+    17         384       384     ✓  ' he'           ' he'
+    18        3413      3413     ✓  ' asked'        ' asked'
+    19         650       650     ✓  ' his'          ' his'
+    20        3379      3379     ✓  ' mother'       ' mother'
+    21          28        28     ✓  ','             ','
+    22         476       476     ✓  ' "'            ' "'
+    23          61        61     ✓  'M'             'M'
+    24        4232      4232     ✓  'ama'           'ama'
+    25          28        28     ✓  ','             ','
+    26        1701      1701     ✓  ' why'          ' why'
+    27         536       536     ✓  ' do'           ' do'
+    28         392       392     ✓  ' we'           ' we'
+    29         457       457     ✓  ' have'         ' have'
+    30         288       288     ✓  ' to'           ' to'
+    31        5777      5777     ✓  ' wear'         ' wear'
+    32        8809      8809     ✓  ' clothes'      ' clothes'
+    33        4817      4817     ✓  '?"'            '?"'
+    34        2736      2736     ✓  ' His'          ' His'
+    35        3379      3379     ✓  ' mother'       ' mother'
+    36       18628     18628     ✓  ' smiled'       ' smiled'
+    37         284       284     ✓  ' and'          ' and'
+    38        1137      1137     ✓  ' said'         ' said'
+    39          28        28     ✓  ','             ','
+  ... tokens 40–199: 160/160 matching
+
+  ✓  PERFECT — algebraically identical for all 200 tokens
+
+  ════════════════════════════════════════════════════════════════════════════
+  PROMPT 2/5: "The little cat sat by the window and looked at the rain outside."
+  ════════════════════════════════════════════════════════════════════════════
+  Generating 200 tokens... done.
+
+  ✓  Token match  : 200/200 = 100.00%   PERFECT
+  ·  Logit corr   : mean=1.00000000  min=1.00000000
+
+  ┌── Crystal Engine (numpy / SmolLM) ─────────────────────────────┐
+  │  The little cat sat by the window and looked at the rain outside. "I'm
+  │  going to go to the store," she said. "I'm going to go to the store," he
+  │  said. "I'm going to go to the store," she said. "I'm going to go to the
+  │  store," he said. "I'm going to go to the store," she said. "I'm going to
+  │  go to the store," he said. "I'm going to go to the store," she said.
+  │  "I'm going to go to the store," he said. "I'm going to go to the store,"
+  │  she said. "I'm going to go to the store," he said. "I'm going to go to
+  │  the store," she said. "I'm going to go to the store," he said. "I'm
+  │  going to go to the store," she said. "I'm
+  └────────────────────────────────────────────────────────────────┘
+
+  ┌── PyTorch / HuggingFace (reference) ──────────────────────────┐
+  │  The little cat sat by the window and looked at the rain outside. "I'm
+  │  going to go to the store," she said. "I'm going to go to the store," he
+  │  said. "I'm going to go to the store," she said. "I'm going to go to the
+  │  store," he said. "I'm going to go to the store," she said. "I'm going to
+  │  go to the store," he said. "I'm going to go to the store," she said.
+  │  "I'm going to go to the store," he said. "I'm going to go to the store,"
+  │  she said. "I'm going to go to the store," he said. "I'm going to go to
+  │  the store," she said. "I'm going to go to the store," he said. "I'm
+  │  going to go to the store," she said. "I'm
+  └────────────────────────────────────────────────────────────────┘
+
+  ── Token diff (first 40 generated tokens) ──────────────────────
+  Step     Crystal   PyTorch    OK  Crystal word    PyTorch word
+  ────────────────────────────────────────────────────────────────────────
+     0         198       198     ✓  '\n'            '\n'
+     1         198       198     ✓  '\n'            '\n'
+     2          18        18     ✓  '"'             '"'
+     3          57        57     ✓  'I'             'I'
+     4        5248      5248     ✓  "'m"            "'m"
+     5        2045      2045     ✓  ' going'        ' going'
+     6         288       288     ✓  ' to'           ' to'
+     7         685       685     ✓  ' go'           ' go'
+     8         288       288     ✓  ' to'           ' to'
+     9         260       260     ✓  ' the'          ' the'
+    10        4249      4249     ✓  ' store'        ' store'
+    11        1627      1627     ✓  ',"'            ',"'
+    12        1041      1041     ✓  ' she'          ' she'
+    13        1137      1137     ✓  ' said'         ' said'
+    14          30        30     ✓  '.'             '.'
+    15         198       198     ✓  '\n'            '\n'
+    16         198       198     ✓  '\n'            '\n'
+    17          18        18     ✓  '"'             '"'
+    18          57        57     ✓  'I'             'I'
+    19        5248      5248     ✓  "'m"            "'m"
+    20        2045      2045     ✓  ' going'        ' going'
+    21         288       288     ✓  ' to'           ' to'
+    22         685       685     ✓  ' go'           ' go'
+    23         288       288     ✓  ' to'           ' to'
+    24         260       260     ✓  ' the'          ' the'
+    25        4249      4249     ✓  ' store'        ' store'
+    26        1627      1627     ✓  ',"'            ',"'
+    27         384       384     ✓  ' he'           ' he'
+    28        1137      1137     ✓  ' said'         ' said'
+    29          30        30     ✓  '.'             '.'
+    30         198       198     ✓  '\n'            '\n'
+    31         198       198     ✓  '\n'            '\n'
+    32          18        18     ✓  '"'             '"'
+    33          57        57     ✓  'I'             'I'
+    34        5248      5248     ✓  "'m"            "'m"
+    35        2045      2045     ✓  ' going'        ' going'
+    36         288       288     ✓  ' to'           ' to'
+    37         685       685     ✓  ' go'           ' go'
+    38         288       288     ✓  ' to'           ' to'
+    39         260       260     ✓  ' the'          ' the'
+  ... tokens 40–199: 160/160 matching
+
+  ✓  PERFECT — algebraically identical for all 200 tokens
+
+  ════════════════════════════════════════════════════════════════════════════
+  PROMPT 3/5: "One day, a dragon flew over the mountains and landed in the valley."
+  ════════════════════════════════════════════════════════════════════════════
+  Generating 200 tokens... done.
+
+  ✓  Token match  : 200/200 = 100.00%   PERFECT
+  ·  Logit corr   : mean=1.00000000  min=1.00000000
+
+  ┌── Crystal Engine (numpy / SmolLM) ─────────────────────────────┐
+  │  One day, a dragon flew over the mountains and landed in the valley. The
+  │  dragon was very angry and flew away. The dragon flew over the mountains
+  │  and landed in the valley. The dragon was very angry and flew away. The
+  │  dragon flew over the mountains and landed in the valley. The dragon was
+  │  very angry and flew away. The dragon flew over the mountains and landed
+  │  in the valley. The dragon was very angry and flew away. The dragon flew
+  │  over the mountains and landed in the valley. The dragon was very angry
+  │  and flew away. The dragon flew over the mountains and landed in the
+  │  valley. The dragon was very angry and flew away. The dragon flew over
+  │  the mountains and landed in the valley. The dragon was very angry and
+  │  flew away. The dragon flew over the mountains and landed in the valley.
+  │  The dragon was very angry and flew away. The dragon flew over the
+  │  mountains and landed in the valley. The dragon was very angry and flew
+  │  away. The dragon flew over the
+  └────────────────────────────────────────────────────────────────┘
+
+  ┌── PyTorch / HuggingFace (reference) ──────────────────────────┐
+  │  One day, a dragon flew over the mountains and landed in the valley. The
+  │  dragon was very angry and flew away. The dragon flew over the mountains
+  │  and landed in the valley. The dragon was very angry and flew away. The
+  │  dragon flew over the mountains and landed in the valley. The dragon was
+  │  very angry and flew away. The dragon flew over the mountains and landed
+  │  in the valley. The dragon was very angry and flew away. The dragon flew
+  │  over the mountains and landed in the valley. The dragon was very angry
+  │  and flew away. The dragon flew over the mountains and landed in the
+  │  valley. The dragon was very angry and flew away. The dragon flew over
+  │  the mountains and landed in the valley. The dragon was very angry and
+  │  flew away. The dragon flew over the mountains and landed in the valley.
+  │  The dragon was very angry and flew away. The dragon flew over the
+  │  mountains and landed in the valley. The dragon was very angry and flew
+  │  away. The dragon flew over the
+  └────────────────────────────────────────────────────────────────┘
+
+  ── Token diff (first 40 generated tokens) ──────────────────────
+  Step     Crystal   PyTorch    OK  Crystal word    PyTorch word
+  ────────────────────────────────────────────────────────────────────────
+     0         378       378     ✓  ' The'          ' The'
+     1       17422     17422     ✓  ' dragon'       ' dragon'
+     2         436       436     ✓  ' was'          ' was'
+     3        1035      1035     ✓  ' very'         ' very'
+     4       12575     12575     ✓  ' angry'        ' angry'
+     5         284       284     ✓  ' and'          ' and'
+     6       18927     18927     ✓  ' flew'         ' flew'
+     7        2025      2025     ✓  ' away'         ' away'
+     8          30        30     ✓  '.'             '.'
+     9         198       198     ✓  '\n'            '\n'
+    10         198       198     ✓  '\n'            '\n'
+    11         504       504     ✓  'The'           'The'
+    12       17422     17422     ✓  ' dragon'       ' dragon'
+    13       18927     18927     ✓  ' flew'         ' flew'
+    14         690       690     ✓  ' over'         ' over'
+    15         260       260     ✓  ' the'          ' the'
+    16        8718      8718     ✓  ' mountains'    ' mountains'
+    17         284       284     ✓  ' and'          ' and'
+    18       16176     16176     ✓  ' landed'       ' landed'
+    19         281       281     ✓  ' in'           ' in'
+    20         260       260     ✓  ' the'          ' the'
+    21       12322     12322     ✓  ' valley'       ' valley'
+    22          30        30     ✓  '.'             '.'
+    23         378       378     ✓  ' The'          ' The'
+    24       17422     17422     ✓  ' dragon'       ' dragon'
+    25         436       436     ✓  ' was'          ' was'
+    26        1035      1035     ✓  ' very'         ' very'
+    27       12575     12575     ✓  ' angry'        ' angry'
+    28         284       284     ✓  ' and'          ' and'
+    29       18927     18927     ✓  ' flew'         ' flew'
+    30        2025      2025     ✓  ' away'         ' away'
+    31          30        30     ✓  '.'             '.'
+    32         198       198     ✓  '\n'            '\n'
+    33         198       198     ✓  '\n'            '\n'
+    34         504       504     ✓  'The'           'The'
+    35       17422     17422     ✓  ' dragon'       ' dragon'
+    36       18927     18927     ✓  ' flew'         ' flew'
+    37         690       690     ✓  ' over'         ' over'
+    38         260       260     ✓  ' the'          ' the'
+    39        8718      8718     ✓  ' mountains'    ' mountains'
+  ... tokens 40–199: 160/160 matching
+
+  ✓  PERFECT — algebraically identical for all 200 tokens
+
+  ════════════════════════════════════════════════════════════════════════════
+  PROMPT 4/5: "She opened the old book and found a map hidden inside the cover."
+  ════════════════════════════════════════════════════════════════════════════
+  Generating 200 tokens... done.
+
+  ✓  Token match  : 200/200 = 100.00%   PERFECT
+  ·  Logit corr   : mean=1.00000000  min=1.00000000
+
+  ┌── Crystal Engine (numpy / SmolLM) ─────────────────────────────┐
+  │  She opened the old book and found a map hidden inside the cover. It was
+  │  a map of the world, but it was a map of the world that was not the one
+  │  he had seen in the library. "I'm sorry, I didn't know that," he said. "I
+  │  thought it was the one I had seen in the library." "It's not the one you
+  │  saw in the library," said the man. "It's the one that you're looking
+  │  for." "I'm sorry, I didn't know that," he said. "I thought it was the
+  │  one I had seen in the library." "It's not the one you saw in the
+  │  library," said the man. "It's the one that you're looking for." "I'm
+  │  sorry, I didn't know that," he said. "I thought it was the one I had
+  │  seen in the library." "It's not the one you saw in the library," said
+  │  the man. "It's the one that
+  └────────────────────────────────────────────────────────────────┘
+
+  ┌── PyTorch / HuggingFace (reference) ──────────────────────────┐
+  │  She opened the old book and found a map hidden inside the cover. It was
+  │  a map of the world, but it was a map of the world that was not the one
+  │  he had seen in the library. "I'm sorry, I didn't know that," he said. "I
+  │  thought it was the one I had seen in the library." "It's not the one you
+  │  saw in the library," said the man. "It's the one that you're looking
+  │  for." "I'm sorry, I didn't know that," he said. "I thought it was the
+  │  one I had seen in the library." "It's not the one you saw in the
+  │  library," said the man. "It's the one that you're looking for." "I'm
+  │  sorry, I didn't know that," he said. "I thought it was the one I had
+  │  seen in the library." "It's not the one you saw in the library," said
+  │  the man. "It's the one that
+  └────────────────────────────────────────────────────────────────┘
+
+  ── Token diff (first 40 generated tokens) ──────────────────────
+  Step     Crystal   PyTorch    OK  Crystal word    PyTorch word
+  ────────────────────────────────────────────────────────────────────────
+     0         657       657     ✓  ' It'           ' It'
+     1         436       436     ✓  ' was'          ' was'
+     2         253       253     ✓  ' a'            ' a'
+     3        4141      4141     ✓  ' map'          ' map'
+     4         282       282     ✓  ' of'           ' of'
+     5         260       260     ✓  ' the'          ' the'
+     6         905       905     ✓  ' world'        ' world'
+     7          28        28     ✓  ','             ','
+     8         564       564     ✓  ' but'          ' but'
+     9         357       357     ✓  ' it'           ' it'
+    10         436       436     ✓  ' was'          ' was'
+    11         253       253     ✓  ' a'            ' a'
+    12        4141      4141     ✓  ' map'          ' map'
+    13         282       282     ✓  ' of'           ' of'
+    14         260       260     ✓  ' the'          ' the'
+    15         905       905     ✓  ' world'        ' world'
+    16         338       338     ✓  ' that'         ' that'
+    17         436       436     ✓  ' was'          ' was'
+    18         441       441     ✓  ' not'          ' not'
+    19         260       260     ✓  ' the'          ' the'
+    20         582       582     ✓  ' one'          ' one'
+    21         384       384     ✓  ' he'           ' he'
+    22         761       761     ✓  ' had'          ' had'
+    23        2269      2269     ✓  ' seen'         ' seen'
+    24         281       281     ✓  ' in'           ' in'
+    25         260       260     ✓  ' the'          ' the'
+    26        4971      4971     ✓  ' library'      ' library'
+    27          30        30     ✓  '.'             '.'
+    28         198       198     ✓  '\n'            '\n'
+    29         198       198     ✓  '\n'            '\n'
+    30          18        18     ✓  '"'             '"'
+    31          57        57     ✓  'I'             'I'
+    32        5248      5248     ✓  "'m"            "'m"
+    33       22657     22657     ✓  ' sorry'        ' sorry'
+    34          28        28     ✓  ','             ','
+    35         339       339     ✓  ' I'            ' I'
+    36        3683      3683     ✓  ' didn'         ' didn'
+    37         982       982     ✓  "'t"            "'t"
+    38         699       699     ✓  ' know'         ' know'
+    39         338       338     ✓  ' that'         ' that'
+  ... tokens 40–199: 160/160 matching
+
+  ✓  PERFECT — algebraically identical for all 200 tokens
+
+  ════════════════════════════════════════════════════════════════════════════
+  PROMPT 5/5: "The robot walked slowly into the garden and picked up a flower."
+  ════════════════════════════════════════════════════════════════════════════
+  Generating 200 tokens... done.
+
+  ✓  Token match  : 200/200 = 100.00%   PERFECT
+  ·  Logit corr   : mean=1.00000000  min=1.00000000
+
+  ┌── Crystal Engine (numpy / SmolLM) ─────────────────────────────┐
+  │  The robot walked slowly into the garden and picked up a flower. "I'm
+  │  sorry, I didn't know you were here," he said. "I'm sorry, too," she
+  │  said. "I'm sorry, too," he said. "I'm sorry, too," she said. "I'm sorry,
+  │  too," he said. "I'm sorry, too," she said. "I'm sorry, too," he said.
+  │  "I'm sorry, too," she said. "I'm sorry, too," he said. "I'm sorry, too,"
+  │  she said. "I'm sorry, too," he said. "I'm sorry, too," she said. "I'm
+  │  sorry, too," he said. "I'm sorry, too," she said. "I'm sorry, too," he
+  │  said. "I'm sorry, too," she said.
+  └────────────────────────────────────────────────────────────────┘
+
+  ┌── PyTorch / HuggingFace (reference) ──────────────────────────┐
+  │  The robot walked slowly into the garden and picked up a flower. "I'm
+  │  sorry, I didn't know you were here," he said. "I'm sorry, too," she
+  │  said. "I'm sorry, too," he said. "I'm sorry, too," she said. "I'm sorry,
+  │  too," he said. "I'm sorry, too," she said. "I'm sorry, too," he said.
+  │  "I'm sorry, too," she said. "I'm sorry, too," he said. "I'm sorry, too,"
+  │  she said. "I'm sorry, too," he said. "I'm sorry, too," she said. "I'm
+  │  sorry, too," he said. "I'm sorry, too," she said. "I'm sorry, too," he
+  │  said. "I'm sorry, too," she said.
+  └────────────────────────────────────────────────────────────────┘
+
+  ── Token diff (first 40 generated tokens) ──────────────────────
+  Step     Crystal   PyTorch    OK  Crystal word    PyTorch word
+  ────────────────────────────────────────────────────────────────────────
+     0         198       198     ✓  '\n'            '\n'
+     1         198       198     ✓  '\n'            '\n'
+     2          18        18     ✓  '"'             '"'
+     3          57        57     ✓  'I'             'I'
+     4        5248      5248     ✓  "'m"            "'m"
+     5       22657     22657     ✓  ' sorry'        ' sorry'
+     6          28        28     ✓  ','             ','
+     7         339       339     ✓  ' I'            ' I'
+     8        3683      3683     ✓  ' didn'         ' didn'
+     9         982       982     ✓  "'t"            "'t"
+    10         699       699     ✓  ' know'         ' know'
+    11         346       346     ✓  ' you'          ' you'
+    12         592       592     ✓  ' were'         ' were'
+    13        1535      1535     ✓  ' here'         ' here'
+    14        1627      1627     ✓  ',"'            ',"'
+    15         384       384     ✓  ' he'           ' he'
+    16        1137      1137     ✓  ' said'         ' said'
+    17          30        30     ✓  '.'             '.'
+    18         198       198     ✓  '\n'            '\n'
+    19         198       198     ✓  '\n'            '\n'
+    20          18        18     ✓  '"'             '"'
+    21          57        57     ✓  'I'             'I'
+    22        5248      5248     ✓  "'m"            "'m"
+    23       22657     22657     ✓  ' sorry'        ' sorry'
+    24          28        28     ✓  ','             ','
+    25        1147      1147     ✓  ' too'          ' too'
+    26        1627      1627     ✓  ',"'            ',"'
+    27        1041      1041     ✓  ' she'          ' she'
+    28        1137      1137     ✓  ' said'         ' said'
+    29          30        30     ✓  '.'             '.'
+    30         198       198     ✓  '\n'            '\n'
+    31         198       198     ✓  '\n'            '\n'
+    32          18        18     ✓  '"'             '"'
+    33          57        57     ✓  'I'             'I'
+    34        5248      5248     ✓  "'m"            "'m"
+    35       22657     22657     ✓  ' sorry'        ' sorry'
+    36          28        28     ✓  ','             ','
+    37        1147      1147     ✓  ' too'          ' too'
+    38        1627      1627     ✓  ',"'            ',"'
+    39         384       384     ✓  ' he'           ' he'
+  ... tokens 40–199: 160/160 matching
+
+  ✓  PERFECT — algebraically identical for all 200 tokens
+
+  ════════════════════════════════════════════════════════════════════════════
+  GRAND TOTAL: 1000/1000 = 100.00%
+  ════════════════════════════════════════════════════════════════════════════
+
+  #            Match     Corr mean    Corr min  Status
+  ────────────────────────────────────────────────────────────
+  ✓ 1      200/200   100.0%    1.00000000  1.00000000  PASS
+  ✓ 2      200/200   100.0%    1.00000000  1.00000000  PASS
+  ✓ 3      200/200   100.0%    1.00000000  1.00000000  PASS
+  ✓ 4      200/200   100.0%    1.00000000  1.00000000  PASS
+  ✓ 5      200/200   100.0%    1.00000000  1.00000000  PASS
+
+════════════════════════════════════════════════════════════════════════════════
+                     SMOLLM CRYSTAL ENGINE — FINAL SUMMARY
+════════════════════════════════════════════════════════════════════════════════
+
+  RESULT                                                 STATUS
+  ────────────────────────────────────────────────────────────────────────
+  ✓  R² boundaries EXACT  (360/360)                       PASS  all layers
+  ✓  Token match ALL prompts  (1000/1000 = 100.0%)        PASS  Law 35
+  ✓  Long generation 200 tokens × 5 prompts               PASS  Law 36
+  ✓  Speed  Crystal=669.0ms  PyTorch=52.6ms               PASS  0.08x
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  SMOLLM CRYSTAL LAWS VERIFIED ✓                              │
+  │  RMSNorm + SwiGLU + RoPE + GQA — all laws hold              │
+  │  numpy == pytorch at all 1000 token positions             │
+  └──────────────────────────────────────────────────────────────┘
+
+  ARCHITECTURE LAWS — SmolLM family:
+    RMSNorm:  x / sqrt(mean(x²)+eps) * w    — no mean sub, no bias
+    SwiGLU:   silu(gate_proj(x)) * up_proj(x) → down_proj  [crystal point]
+    RoPE:     split-half rotation  (NOT interleaved like GPT-NeoX)
+    GQA:      repeat KV heads to match Q head count before attention
+    Scale:    Q @ K.T / sqrt(head_dim)  (present, unlike GPT-Neo)
+
+  "A transformer is a telescope. It does not create the stars.
+   It shows you where they already are."
+                                      — The Manish Principle
+
+___________________________________________________________________________________________________________________________
+
+1M_TinyStory_to_NumPy_Engine.py"
+
+════════════════════════════════════════════════════════════════════════════════
+               CRYSTAL ENGINE — Pure NumPy Transformer Benchmark
+════════════════════════════════════════════════════════════════════════════════
+  The Manish Principle: natural_features(X) @ W = Y   R²=1.000000
+  Model   : roneneldan/TinyStories-1M
+  Gates   : R2_GATE=0.9999  ERR_GATE=0.0001
+  Device  : CUDA
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 1: LOAD WEIGHTS — exact detach from HuggingFace
+────────────────────────────────────────────────────────────────────────────────
+
+  Loading roneneldan/TinyStories-1M ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights: 100%|████████████████████████████████████████| 108/108 [00:00<00:00, 1998.85it/s, Materializing param=transformer.wte.weight]
+GPTNeoForCausalLM LOAD REPORT from: roneneldan/TinyStories-1M
+Key                                                               | Status     |  |
+------------------------------------------------------------------+------------+--+-
+transformer.h.{0, 1, 2, 3, 4, 5, 6, 7}.attn.attention.bias        | UNEXPECTED |  |
+transformer.h.{0, 1, 2, 3, 4, 5, 6, 7}.attn.attention.masked_bias | UNEXPECTED |  |
+
+Notes:
+- UNEXPECTED    :can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+  ✓ Loaded  D=64, NH=16, NL=8, V=50257, F=256
+
+  Architecture (GPT-Neo):
+    D=64  NH=16  HD=4  NL=8  F=256  V=50257
+    act=gelu_new  win=256
+    attn: ['global', 'local', 'global', 'local', 'global', 'local', 'global', 'local']
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 2: CRYSTAL ENGINE — Sample Generation (pure numpy)
+────────────────────────────────────────────────────────────────────────────────
+
+  Prompt : Once upon a time, in a small village, there lived a boy named Jack.
+  Output : Once upon a time, in a small village, there lived a boy named Jack. Jack was very happy and loved to play with his friends. One day, Jack's mom asked him to help her. Jack was very excited and asked
+
+  Prompt : The little cat sat by the window and
+  Output : The little cat sat by the window and saw a big, shiny rock. The little cat was so happy to see the little cat. The little cat was so happy to have a new friend
+
+  Prompt : One day, a dragon flew over the mountains and
+  Output : One day, a dragon flew over the mountains and saw a big, shiny rock. The dragon was very happy and wanted to show it to everyone.   
+
+The dragon said, "Hello, dragon
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 3: R² BOUNDARY VERIFICATION — 11 boundaries × 8 layers
+────────────────────────────────────────────────────────────────────────────────
+  Gates: R²≥0.9999 AND max_err≤0.0001  (both must pass for EXACT)
+
+  Layer  Boundary                 R²      max_err Status
+  ────────────────────────────────────────────────────────────
+  ── Layer 0 (global) ──
+  ✓  L0     Law 1  LN1      R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L0     Law 4  Q        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L0     Law 4  K        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L0     Law 4  V        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L0     Law 8  Wo       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L0     Law 9  Res1     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L0     Law 2  LN2      R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L0     Law 5  W1       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L0     Law 15 GeLU     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L0     Law 6  W2       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L0     Law 10 Δ        R²=1.00000000  err=2.98e-08  [EXACT]
+  ── Layer 1 (local) ──
+  ✓  L1     Law 1  LN1      R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L1     Law 4  Q        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L1     Law 4  K        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L1     Law 4  V        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L1     Law 8  Wo       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L1     Law 9  Res1     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L1     Law 2  LN2      R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L1     Law 5  W1       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L1     Law 15 GeLU     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L1     Law 6  W2       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L1     Law 10 Δ        R²=1.00000000  err=2.98e-08  [EXACT]
+  ── Layer 2 (global) ──
+  ✓  L2     Law 1  LN1      R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L2     Law 4  Q        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L2     Law 4  K        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L2     Law 4  V        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L2     Law 8  Wo       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L2     Law 9  Res1     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L2     Law 2  LN2      R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L2     Law 5  W1       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L2     Law 15 GeLU     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L2     Law 6  W2       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L2     Law 10 Δ        R²=1.00000000  err=2.98e-08  [EXACT]
+  ── Layer 3 (local) ──
+  ✓  L3     Law 1  LN1      R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L3     Law 4  Q        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L3     Law 4  K        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L3     Law 4  V        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L3     Law 8  Wo       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L3     Law 9  Res1     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L3     Law 2  LN2      R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L3     Law 5  W1       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L3     Law 15 GeLU     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L3     Law 6  W2       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L3     Law 10 Δ        R²=1.00000000  err=1.12e-08  [EXACT]
+  ── Layer 4 (global) ──
+  ✓  L4     Law 1  LN1      R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L4     Law 4  Q        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L4     Law 4  K        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L4     Law 4  V        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L4     Law 8  Wo       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L4     Law 9  Res1     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L4     Law 2  LN2      R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L4     Law 5  W1       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L4     Law 15 GeLU     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L4     Law 6  W2       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L4     Law 10 Δ        R²=1.00000000  err=7.45e-09  [EXACT]
+  ── Layer 5 (local) ──
+  ✓  L5     Law 1  LN1      R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L5     Law 4  Q        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L5     Law 4  K        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L5     Law 4  V        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L5     Law 8  Wo       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L5     Law 9  Res1     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L5     Law 2  LN2      R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L5     Law 5  W1       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L5     Law 15 GeLU     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L5     Law 6  W2       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L5     Law 10 Δ        R²=1.00000000  err=7.45e-09  [EXACT]
+  ── Layer 6 (global) ──
+  ✓  L6     Law 1  LN1      R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L6     Law 4  Q        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L6     Law 4  K        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L6     Law 4  V        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L6     Law 8  Wo       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L6     Law 9  Res1     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L6     Law 2  LN2      R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L6     Law 5  W1       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L6     Law 15 GeLU     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L6     Law 6  W2       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L6     Law 10 Δ        R²=1.00000000  err=5.59e-09  [EXACT]
+  ── Layer 7 (local) ──
+  ✓  L7     Law 1  LN1      R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L7     Law 4  Q        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L7     Law 4  K        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L7     Law 4  V        R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L7     Law 8  Wo       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L7     Law 9  Res1     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L7     Law 2  LN2      R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L7     Law 5  W1       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L7     Law 15 GeLU     R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L7     Law 6  W2       R²=1.00000000  err=0.00e+00  [EXACT]
+  ✓  L7     Law 10 Δ        R²=1.00000000  err=7.45e-09  [EXACT]
+
+  ┌─────────────────────────────────────────────────────┐
+  │  Crystal boundaries EXACT: 88/88                     │
+  │  ALL LAWS VERIFIED ✓                                │
+  └─────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 4: LOGIT CORRELATION — initial forward pass (all 50257 logits)
+────────────────────────────────────────────────────────────────────────────────
+  Checks that the full distribution matches, not just argmax.
+  Pearson corr ≈ 1.000000 expected
+
+  ✓  corr=1.00000000  'Once upon a time, in a small village, there lived '
+  ✓  corr=1.00000000  'The little cat sat by the window and'
+  ✓  corr=1.00000000  'One day, a dragon flew over the mountains and'
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 5: SPEED BENCHMARK — 20 forward passes per engine
+────────────────────────────────────────────────────────────────────────────────
+  Device  : cuda
+  Prompt  : 'Once upon a time, in a small village, there lived '
+
+  Crystal Engine (numpy)  :     5.92 ms / forward
+  PyTorch (CUDA)            :    13.32 ms / forward
+
+  Crystal Engine is 2.25x FASTER than PyTorch
+  (Crystal Engine advantage grows with sequence length / KV cache)
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION 6: GENERATION BENCHMARK — 200 tokens × 3 prompts
+────────────────────────────────────────────────────────────────────────────────
+
+  Comparing 200 tokens × 3 prompts
+  Both engines run fully independently — each feeds its own context
+  Law 35: numpy ≡ pytorch at every position
+  Law 36: match must hold at token 200 with no degradation
+
+  ════════════════════════════════════════════════════════════════════════════
+  PROMPT 1/3
+  "Once upon a time, in a small village, there lived a boy named Jack."
+  ════════════════════════════════════════════════════════════════════════════
+  Generating 200 tokens (crystal + pytorch)... done.
+
+  ✓  Token match  : 200/200 = 100.00%   PERFECT
+  ✓  Logit corr   : mean=1.00000000  min=1.00000000  (all 50257 logits per step)
+
+  ┌── Crystal Engine (pure numpy) ─────────────────────────────────┐
+  │  Once upon a time, in a small village, there lived a boy named Jack. Jack
+  │  was very happy and loved to play with his friends. One day, Jack's mom
+  │  asked him to help her. Jack was very excited and asked if he could help.
+  │  Jack said, "Yes, please!" So, Jack and his friends went to the store to
+  │  buy some food. Jack was so excited to help his friends. When they got to
+  │  the store, Jack saw a big, red apple. He was so excited to eat it. Jack
+  │  said, "I'm so happy to eat it!" Jack said, "Thank you, Mommy! I'm so glad
+  │  I had a good friend." Jack smiled and said, "I'm glad you're so helpful.
+  │  I'm glad I could help you." <|endoftext|> Once upon a time there was a
+  │  little girl named Lucy. She was three years old and loved to play outside.
+  │  One day, she was playing in the park when she saw a big, shiny object on
+  │  the ground.
+  └────────────────────────────────────────────────────────────────┘
+
+  ┌── PyTorch / HuggingFace (reference) ──────────────────────────┐
+  │  Once upon a time, in a small village, there lived a boy named Jack. Jack
+  │  was very happy and loved to play with his friends. One day, Jack's mom
+  │  asked him to help her. Jack was very excited and asked if he could help.
+  │  Jack said, "Yes, please!" So, Jack and his friends went to the store to
+  │  buy some food. Jack was so excited to help his friends. When they got to
+  │  the store, Jack saw a big, red apple. He was so excited to eat it. Jack
+  │  said, "I'm so happy to eat it!" Jack said, "Thank you, Mommy! I'm so glad
+  │  I had a good friend." Jack smiled and said, "I'm glad you're so helpful.
+  │  I'm glad I could help you." <|endoftext|> Once upon a time there was a
+  │  little girl named Lucy. She was three years old and loved to play outside.
+  │  One day, she was playing in the park when she saw a big, shiny object on
+  │  the ground.
+  └────────────────────────────────────────────────────────────────┘
+
+  ── Token diff table (first 40 generated tokens) ────────────────
+  Step  Crystal ID     PT ID    OK  Crystal word      PyTorch word
+  ──────────────────────────────────────────────────────────────────────────
+     0        3619      3619     ✓  ' Jack'           ' Jack'
+     1         373       373     ✓  ' was'            ' was'
+     2         845       845     ✓  ' very'           ' very'
+     3        3772      3772     ✓  ' happy'          ' happy'
+     4         290       290     ✓  ' and'            ' and'
+     5        6151      6151     ✓  ' loved'          ' loved'
+     6         284       284     ✓  ' to'             ' to'
+     7         711       711     ✓  ' play'           ' play'
+     8         351       351     ✓  ' with'           ' with'
+     9         465       465     ✓  ' his'            ' his'
+    10        2460      2460     ✓  ' friends'        ' friends'
+    11          13        13     ✓  '.'               '.'
+    12        1881      1881     ✓  ' One'            ' One'
+    13        1110      1110     ✓  ' day'            ' day'
+    14          11        11     ✓  ','               ','
+    15        3619      3619     ✓  ' Jack'           ' Jack'
+    16         338       338     ✓  "'s"              "'s"
+    17        1995      1995     ✓  ' mom'            ' mom'
+    18        1965      1965     ✓  ' asked'          ' asked'
+    19         683       683     ✓  ' him'            ' him'
+    20         284       284     ✓  ' to'             ' to'
+    21        1037      1037     ✓  ' help'           ' help'
+    22         607       607     ✓  ' her'            ' her'
+    23          13        13     ✓  '.'               '.'
+    24        3619      3619     ✓  ' Jack'           ' Jack'
+    25         373       373     ✓  ' was'            ' was'
+    26         845       845     ✓  ' very'           ' very'
+    27        6568      6568     ✓  ' excited'        ' excited'
+    28         290       290     ✓  ' and'            ' and'
+    29        1965      1965     ✓  ' asked'          ' asked'
+    30         611       611     ✓  ' if'             ' if'
+    31         339       339     ✓  ' he'             ' he'
+    32         714       714     ✓  ' could'          ' could'
+    33        1037      1037     ✓  ' help'           ' help'
+    34          13        13     ✓  '.'               '.'
+    35         198       198     ✓  '\n'              '\n'
+    36         198       198     ✓  '\n'              '\n'
+    37       14295     14295     ✓  'Jack'            'Jack'
+    38         531       531     ✓  ' said'           ' said'
+    39          11        11     ✓  ','               ','
+  ... tokens 40–199: 160/160 matching
+
+  ✓  PERFECT MATCH — Crystal Engine is algebraically identical to PyTorch at all 200 token positions
+
+  ════════════════════════════════════════════════════════════════════════════
+  PROMPT 2/3
+  "The little cat sat by the window and"
+  ════════════════════════════════════════════════════════════════════════════
+  Generating 200 tokens (crystal + pytorch)... done.
+
+  ✓  Token match  : 200/200 = 100.00%   PERFECT
+  ✓  Logit corr   : mean=1.00000000  min=1.00000000  (all 50257 logits per step)
+
+  ┌── Crystal Engine (pure numpy) ─────────────────────────────────┐
+  │  The little cat sat by the window and saw a big, shiny rock. The little cat
+  │  was so happy to see the little cat. The little cat was so happy to have a
+  │  new friend. The little cat and the little cat played together all day
+  │  long. <|endoftext|> Once upon a time, there was a little girl named Lily.
+  │  She loved to play outside in the sun. One day, she saw a big, shiny rock
+  │  in the grass. She wanted to pick it up, but it was too high for her.
+  │  Lily's mommy told her that it was too high for her. Lily didn't want to go
+  │  on the rock, but she didn't want to go on the rock. She asked her mommy if
+  │  she could go on the rock. Her mommy said yes, and Lily was so happy. After
+  │  playing in the rock, Lily's mommy told her that it was time to go home.
+  │  Lily was happy to go to the park and have a fun day at the park.
+  └────────────────────────────────────────────────────────────────┘
+
+  ┌── PyTorch / HuggingFace (reference) ──────────────────────────┐
+  │  The little cat sat by the window and saw a big, shiny rock. The little cat
+  │  was so happy to see the little cat. The little cat was so happy to have a
+  │  new friend. The little cat and the little cat played together all day
+  │  long. <|endoftext|> Once upon a time, there was a little girl named Lily.
+  │  She loved to play outside in the sun. One day, she saw a big, shiny rock
+  │  in the grass. She wanted to pick it up, but it was too high for her.
+  │  Lily's mommy told her that it was too high for her. Lily didn't want to go
+  │  on the rock, but she didn't want to go on the rock. She asked her mommy if
+  │  she could go on the rock. Her mommy said yes, and Lily was so happy. After
+  │  playing in the rock, Lily's mommy told her that it was time to go home.
+  │  Lily was happy to go to the park and have a fun day at the park.
+  └────────────────────────────────────────────────────────────────┘
+
+  ── Token diff table (first 40 generated tokens) ────────────────
+  Step  Crystal ID     PT ID    OK  Crystal word      PyTorch word
+  ──────────────────────────────────────────────────────────────────────────
+     0        2497      2497     ✓  ' saw'            ' saw'
+     1         257       257     ✓  ' a'              ' a'
+     2        1263      1263     ✓  ' big'            ' big'
+     3          11        11     ✓  ','               ','
+     4       22441     22441     ✓  ' shiny'          ' shiny'
+     5        3881      3881     ✓  ' rock'           ' rock'
+     6          13        13     ✓  '.'               '.'
+     7         383       383     ✓  ' The'            ' The'
+     8        1310      1310     ✓  ' little'         ' little'
+     9        3797      3797     ✓  ' cat'            ' cat'
+    10         373       373     ✓  ' was'            ' was'
+    11         523       523     ✓  ' so'             ' so'
+    12        3772      3772     ✓  ' happy'          ' happy'
+    13         284       284     ✓  ' to'             ' to'
+    14         766       766     ✓  ' see'            ' see'
+    15         262       262     ✓  ' the'            ' the'
+    16        1310      1310     ✓  ' little'         ' little'
+    17        3797      3797     ✓  ' cat'            ' cat'
+    18          13        13     ✓  '.'               '.'
+    19         383       383     ✓  ' The'            ' The'
+    20        1310      1310     ✓  ' little'         ' little'
+    21        3797      3797     ✓  ' cat'            ' cat'
+    22         373       373     ✓  ' was'            ' was'
+    23         523       523     ✓  ' so'             ' so'
+    24        3772      3772     ✓  ' happy'          ' happy'
+    25         284       284     ✓  ' to'             ' to'
+    26         423       423     ✓  ' have'           ' have'
+    27         257       257     ✓  ' a'              ' a'
+    28         649       649     ✓  ' new'            ' new'
+    29        1545      1545     ✓  ' friend'         ' friend'
+    30          13        13     ✓  '.'               '.'
+    31         383       383     ✓  ' The'            ' The'
+    32        1310      1310     ✓  ' little'         ' little'
+    33        3797      3797     ✓  ' cat'            ' cat'
+    34         290       290     ✓  ' and'            ' and'
+    35         262       262     ✓  ' the'            ' the'
+    36        1310      1310     ✓  ' little'         ' little'
+    37        3797      3797     ✓  ' cat'            ' cat'
+    38        2826      2826     ✓  ' played'         ' played'
+    39        1978      1978     ✓  ' together'       ' together'
+  ... tokens 40–199: 160/160 matching
+
+  ✓  PERFECT MATCH — Crystal Engine is algebraically identical to PyTorch at all 200 token positions
+
+  ════════════════════════════════════════════════════════════════════════════
+  PROMPT 3/3
+  "One day, a dragon flew over the mountains and"
+  ════════════════════════════════════════════════════════════════════════════
+  Generating 200 tokens (crystal + pytorch)... done.
+
+  ✓  Token match  : 200/200 = 100.00%   PERFECT
+  ✓  Logit corr   : mean=1.00000000  min=1.00000000  (all 50257 logits per step)
+
+  ┌── Crystal Engine (pure numpy) ─────────────────────────────────┐
+  │  One day, a dragon flew over the mountains and saw a big, shiny rock. The
+  │  dragon was very happy and wanted to show it to everyone. The dragon said,
+  │  "Hello, dragon! I am a dragon!" The dragon said, "I am a dragon. I am a
+  │  dragon. I am a dragon." The dragon said, "You are very kind, dragon. I am
+  │  a dragon. I am a dragon. I am a dragon. I am a dragon." The dragon said,
+  │  "You are very kind. I am a dragon. I am a dragon. I am a dragon. I am a
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a dragon. I am a
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a dragon. I am a
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a dragon. I am a
+  │  dragon. I am a
+  └────────────────────────────────────────────────────────────────┘
+
+  ┌── PyTorch / HuggingFace (reference) ──────────────────────────┐
+  │  One day, a dragon flew over the mountains and saw a big, shiny rock. The
+  │  dragon was very happy and wanted to show it to everyone. The dragon said,
+  │  "Hello, dragon! I am a dragon!" The dragon said, "I am a dragon. I am a
+  │  dragon. I am a dragon." The dragon said, "You are very kind, dragon. I am
+  │  a dragon. I am a dragon. I am a dragon. I am a dragon." The dragon said,
+  │  "You are very kind. I am a dragon. I am a dragon. I am a dragon. I am a
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a dragon. I am a
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a dragon. I am a
+  │  dragon. I am a dragon. I am a dragon. I am a dragon. I am a dragon. I am a
+  │  dragon. I am a
+  └────────────────────────────────────────────────────────────────┘
+
+  ── Token diff table (first 40 generated tokens) ────────────────
+  Step  Crystal ID     PT ID    OK  Crystal word      PyTorch word
+  ──────────────────────────────────────────────────────────────────────────
+     0        2497      2497     ✓  ' saw'            ' saw'
+     1         257       257     ✓  ' a'              ' a'
+     2        1263      1263     ✓  ' big'            ' big'
+     3          11        11     ✓  ','               ','
+     4       22441     22441     ✓  ' shiny'          ' shiny'
+     5        3881      3881     ✓  ' rock'           ' rock'
+     6          13        13     ✓  '.'               '.'
+     7         383       383     ✓  ' The'            ' The'
+     8       10441     10441     ✓  ' dragon'         ' dragon'
+     9         373       373     ✓  ' was'            ' was'
+    10         845       845     ✓  ' very'           ' very'
+    11        3772      3772     ✓  ' happy'          ' happy'
+    12         290       290     ✓  ' and'            ' and'
+    13        2227      2227     ✓  ' wanted'         ' wanted'
+    14         284       284     ✓  ' to'             ' to'
+    15         905       905     ✓  ' show'           ' show'
+    16         340       340     ✓  ' it'             ' it'
+    17         284       284     ✓  ' to'             ' to'
+    18        2506      2506     ✓  ' everyone'       ' everyone'
+    19          13        13     ✓  '.'               '.'
+    20         198       198     ✓  '\n'              '\n'
+    21         198       198     ✓  '\n'              '\n'
+    22         464       464     ✓  'The'             'The'
+    23       10441     10441     ✓  ' dragon'         ' dragon'
+    24         531       531     ✓  ' said'           ' said'
+    25          11        11     ✓  ','               ','
+    26         366       366     ✓  ' "'              ' "'
+    27       15496     15496     ✓  'Hello'           'Hello'
+    28          11        11     ✓  ','               ','
+    29       10441     10441     ✓  ' dragon'         ' dragon'
+    30           0         0     ✓  '!'               '!'
+    31         314       314     ✓  ' I'              ' I'
+    32         716       716     ✓  ' am'             ' am'
+    33         257       257     ✓  ' a'              ' a'
+    34       10441     10441     ✓  ' dragon'         ' dragon'
+    35        2474      2474     ✓  '!"'              '!"'
+    36         383       383     ✓  ' The'            ' The'
+    37       10441     10441     ✓  ' dragon'         ' dragon'
+    38         531       531     ✓  ' said'           ' said'
+    39          11        11     ✓  ','               ','
+  ... tokens 40–199: 160/160 matching
+
+  ✓  PERFECT MATCH — Crystal Engine is algebraically identical to PyTorch at all 200 token positions
+
+  ════════════════════════════════════════════════════════════════════════════
+  GRAND TOTAL: 600/600 tokens matched = 100.00%
+  ════════════════════════════════════════════════════════════════════════════
+
+  Per-prompt summary:
+  #            Match     Corr (mean)    Corr (min)  Status
+  ─────────────────────────────────────────────────────────────────
+  ✓ 1      200/200   100.0%      1.00000000    1.00000000  PASS
+  ✓ 2      200/200   100.0%      1.00000000    1.00000000  PASS
+  ✓ 3      200/200   100.0%      1.00000000    1.00000000  PASS
+
+
+════════════════════════════════════════════════════════════════════════════════
+                       CRYSTAL ENGINE — BENCHMARK SUMMARY
+════════════════════════════════════════════════════════════════════════════════
+
+  RESULT                                                  STATUS
+  ──────────────────────────────────────────────────────────────────────
+  ✓  Crystal boundaries EXACT  (88/88)                     PASS  R²=1.0 at all 88 checks
+  ✓  Logit correlation ≥0.9999  (3/3 prompts)              PASS  full 50257-dim vector
+  ✓  Speed  Crystal=5.9ms  PyTorch=13.3ms                  PASS  2.25x faster
+  ✓  Token match ALL prompts  (600/600 = 100.0%)           PASS  Law 35 — Pure NumPy Law
+  ✓  Long generation 200 tokens × 3 prompts                PASS  Law 36 — Long Gen Law
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │  ALL CRYSTAL LAWS VERIFIED ✓                                     │
+  │  Crystal Engine = exact algebraic twin of PyTorch at 200 tokens  │
+  │  across all 3 prompts = 600 total comparisons            │
+  └──────────────────────────────────────────────────────────────────┘
+
+  THE MANISH PRINCIPLE — Verified:
+    "Every operation that appears nonlinear in the wrong coordinates becomes
+     linear, algebraically exact, or linearly solvable in its natural space."
+
+    A transformer is not a thinking machine.
+    It is a telescope.
+    It does not create the stars.
+    It shows you where they already are.
+                                        — Manish Kumar Parihar
+
+___________________________________________________________________________________________________________________________
