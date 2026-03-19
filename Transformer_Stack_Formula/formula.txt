@@ -1,0 +1,32 @@
+---
+
+**SRA-P7 — Nested Parallel SRA Equation**
+
+```
+─── Base (7 parallel init) ───
+Q⁰_p = K⁰_p = V⁰_p = Win_p · x     p = 1..7
+
+─── Recursion N=3 levels ───
+for n = 1..3:
+  for p = 1..7:
+    Aⁿ_p    = softmax( Qⁿ⁻¹_p · Kⁿ⁻¹_pᵀ / √d_p )
+    Qⁿ_p    = Aⁿ_p · VQ_n_p  +  Qⁿ⁻¹_p
+    Kⁿ_p    = Aⁿ_p · VK_n_p  +  Kⁿ⁻¹_p
+    Vⁿ_p    = Aⁿ_p · VV_n_p  +  Vⁿ⁻¹_p
+
+  ─── Aggregate: 7 paths attend over each other ───
+  Qⁿ = softmax( Qⁿ_stack · Qⁿ_stackᵀ / √d ) · Qⁿ_stack
+  Kⁿ = softmax( Kⁿ_stack · Kⁿ_stackᵀ / √d ) · Kⁿ_stack
+  Vⁿ = softmax( Vⁿ_stack · Vⁿ_stackᵀ / √d ) · Vⁿ_stack
+
+  where Qⁿ_stack = [Qⁿ_1 ; Qⁿ_2 ; ... ; Qⁿ_7]  shape (B, 7*3, d)
+
+─── Final ───
+Ω = softmax( Q³ · K³ᵀ / √d ) · V³  →  Wout  →  Y
+```
+
+**Total weights per SRA-P7 block:**
+- 7 × Win_p = 7 input projections
+- 3 levels × 7 paths × 3 towers (VQ,VK,VV) = 63 weight matrices
+- 3 aggregate attention layers for Q,K,V
+- 1 Wout
