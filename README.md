@@ -1,5 +1,5 @@
+# Project is Dead Research Failed
 # REACTOR — The Manish Principle
-
 > **"They said you need backpropagation. They were wrong."**
 
 **REACTOR** (Residual Analytic Crystal Training Operator Reactor) is a transformer training framework that replaces backpropagation with closed-form least-squares. Zero gradient steps. O(N) time. 100% token match.
